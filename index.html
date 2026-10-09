@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#4E8A69">
+<meta name="apple-mobile-web-app-title" content="国語">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>国語学習サポート</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+<link rel="apple-touch-icon" href="icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F7F3; --sheet:#FFFFFF; --ink:#24272B; --pencil:#686E76;
+  --grid:#4E8A69; --grid-soft:#DCE9E0; --red:#D3302F; --red-soft:#FBE3E1; --ok:#2F7D55;
+  --kyo:"Klee One","Hiragino Mincho ProN","Yu Mincho",serif;
+  --ui:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#181C1A; --sheet:#212624; --ink:#E7EAE5; --pencil:#A2A9A4;
+    --grid:#71B48F; --grid-soft:#2C3832; --red:#FF6B66; --red-soft:#3A2423; --ok:#7CCB9E;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#181C1A; --sheet:#212624; --ink:#E7EAE5; --pencil:#A2A9A4;
+  --grid:#71B48F; --grid-soft:#2C3832; --red:#FF6B66; --red-soft:#3A2423; --ok:#7CCB9E;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.7;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--grid);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:20px 18px 48px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.logo{font-family:var(--kyo);font-weight:600;font-size:24px;letter-spacing:.08em;margin:0;display:flex;align-items:center;gap:10px}
+.logo .box{display:inline-grid;place-items:center;width:40px;height:40px;border:2px solid var(--grid);color:var(--red);font-size:24px}
+.back{background:none;border:none;color:var(--pencil);padding:6px 0;font-size:15px}
+.date{color:var(--pencil);font-size:14px}
+h2{font-family:var(--kyo);font-weight:600;font-size:22px;margin:4px 0 12px}
+h3{font-size:15px;font-weight:700;margin:20px 0 8px;color:var(--pencil)}
+p{margin:0 0 12px}
+.menu{display:grid;gap:12px}
+.task{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:var(--sheet);border:1.5px solid var(--grid-soft);border-radius:6px;padding:16px}
+.task:hover{border-color:var(--grid)}
+.task .num{font-family:var(--kyo);font-size:30px;width:52px;height:52px;flex:none;display:grid;place-items:center;border:2px solid var(--grid);color:var(--grid)}
+.task .t{font-weight:700;font-size:17px;display:block}
+.task .s{color:var(--pencil);font-size:14px}
+.task.done .num{border-color:var(--red);color:var(--red)}
+.sub{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.subbtn{background:none;border:1.5px dashed var(--grid-soft);border-radius:6px;padding:12px;text-align:left}
+.subbtn b{display:block;font-size:15px}
+.subbtn span{font-size:13px;color:var(--pencil)}
+.streak{margin:18px 0 0;color:var(--pencil);font-size:14px}
+.card{background:var(--sheet);border:1.5px solid var(--grid-soft);border-radius:6px;padding:20px;position:relative}
+.big{font-family:var(--kyo);font-size:44px;line-height:1.3;text-align:center;margin:8px 0;letter-spacing:.06em}
+.phrase{font-family:var(--kyo);font-size:20px;text-align:center;color:var(--pencil)}
+.phrase em{font-style:normal;color:var(--ink);border-bottom:2px solid var(--grid)}
+.unit{font-size:13px;color:var(--pencil)}
+.row{display:flex;gap:10px;margin-top:16px}
+.btn{flex:1;border:none;border-radius:6px;padding:14px;font-weight:700;font-size:16px;background:var(--grid);color:#fff}
+.btn.line{background:none;border:1.5px solid var(--grid);color:var(--grid)}
+.btn.red{background:var(--red)}
+.btn:disabled{opacity:.4;cursor:default}
+.dots{display:flex;gap:6px;justify-content:center;margin:0 0 14px}
+.dots i{width:10px;height:10px;border:1.5px solid var(--grid);border-radius:50%}
+.dots i.on{background:var(--grid)}
+.dots i.ng{background:var(--red);border-color:var(--red)}
+.maru{position:absolute;inset:0;pointer-events:none;display:grid;place-items:center}
+.maru circle{fill:none;stroke:var(--red);stroke-width:7;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600;animation:draw .55s ease-out forwards;opacity:.85}
+@keyframes draw{to{stroke-dashoffset:40}}
+@media (prefers-reduced-motion:reduce){.maru circle{animation:none;stroke-dashoffset:40}}
+.steps{display:flex;gap:6px;margin-bottom:14px}
+.steps span{flex:1;height:4px;background:var(--grid-soft);border-radius:2px}
+.steps span.on{background:var(--grid)}
+.q{font-family:var(--kyo);font-size:18px;line-height:1.8;border-left:4px solid var(--grid);padding:2px 0 2px 12px;margin:0 0 14px}
+.passage{font-family:var(--kyo);font-size:18px;line-height:2}
+.sent{display:inline;border-radius:3px;padding:1px 0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sent.sel{background:var(--grid-soft);box-shadow:inset 0 -2px 0 var(--grid)}
+.sent.right{background:var(--grid-soft);box-shadow:inset 0 -3px 0 var(--ok)}
+.sent.miss{box-shadow:inset 0 -3px 0 var(--red)}
+.sent.wrong{background:var(--red-soft)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{border:1.5px solid var(--grid-soft);background:var(--sheet);border-radius:6px;padding:14px;font-size:17px;font-weight:700}
+.choice.ok{border-color:var(--ok);color:var(--ok)}
+.choice.ng{border-color:var(--red);color:var(--red)}
+.note{background:var(--grid-soft);border-radius:6px;padding:12px 14px;font-size:15px;margin-top:14px}
+.note.red{background:var(--red-soft)}
+.frame{font-family:var(--kyo);font-size:17px;padding:10px 12px;border:1.5px dashed var(--grid);border-radius:6px;margin:0 0 12px}
+textarea,input,select{width:100%;font-family:var(--kyo);font-size:18px;background:var(--sheet);color:var(--ink);border:1.5px solid var(--grid-soft);border-radius:6px;padding:10px 12px}
+textarea{min-height:84px;resize:vertical}
+label.f{display:block;font-size:14px;color:var(--pencil);margin:12px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{font-size:13px;padding:4px 10px;border-radius:99px;border:1.5px solid var(--grid-soft);color:var(--pencil)}
+.chip.ok{border-color:var(--ok);color:var(--ok);font-weight:700}
+.chip.ng{border-color:var(--red);color:var(--red)}
+.genko-wrap{overflow-x:auto;margin:6px 0 4px;padding-bottom:4px}
+.genko{display:flex;direction:rtl;gap:0;width:max-content;margin-left:auto;border:1.5px solid var(--grid)}
+.gcol{direction:ltr;display:flex;flex-direction:column;border-left:1px solid var(--grid)}
+.gcol:last-child{border-left:none}
+.gcell{width:30px;height:30px;border-bottom:1px solid var(--grid-soft);display:grid;place-items:center;font-family:var(--kyo);font-size:19px;writing-mode:vertical-rl;line-height:1}
+.gcell:last-child{border-bottom:none}
+.gcell.over{background:var(--red-soft);color:var(--red)}
+.gcell.limit{border-bottom:2px solid var(--red)}
+.gnum{font-size:10px;color:var(--pencil);text-align:center;direction:ltr;padding:2px 0;border-top:1px solid var(--grid)}
+.selfeval{display:flex;gap:10px;margin-top:12px}
+.selfeval button{flex:1;font-family:var(--kyo);font-size:26px;padding:8px;background:var(--sheet);border:1.5px solid var(--grid-soft);border-radius:6px}
+.selfeval button span{display:block;font-family:var(--ui);font-size:12px;color:var(--pencil)}
+.list{display:grid;gap:10px}
+.item{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--sheet);border:1.5px solid var(--grid-soft);border-radius:6px;padding:12px 14px}
+.item .mk{font-family:var(--kyo);font-size:22px;width:32px;text-align:center;color:var(--red);flex:none}
+.item .mk.none{color:var(--grid-soft)}
+.item small{display:block;color:var(--pencil);font-size:13px}
+ol.flow{padding-left:1.4em;margin:0}
+ol.flow li{margin-bottom:10px}
+.sentence{font-family:var(--kyo);font-size:22px;line-height:2.2;display:flex;flex-wrap:wrap;align-items:center}
+.ch{padding:0 1px}
+.gap{border:none;background:none;width:14px;height:40px;padding:0;position:relative;color:var(--grid-soft)}
+.gap::after{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:currentColor;opacity:.5}
+.gap.on{color:var(--red)}
+.gap.on::after{opacity:1;transform:rotate(18deg)}
+.gap.miss{color:var(--ok)}
+.gap.miss::after{opacity:1;transform:rotate(18deg)}
+.units label{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--grid-soft);font-size:16px}
+.units input{width:22px;height:22px;flex:none}
+.bar{height:6px;background:var(--grid-soft);border-radius:3px;overflow:hidden;margin-top:4px;flex:1}
+.bar i{display:block;height:100%;background:var(--grid)}
+.prog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--pencil)}
+.foot{margin-top:28px;font-size:13px;color:var(--pencil);display:flex;gap:16px;flex-wrap:wrap}
+.foot button{background:none;border:none;color:var(--pencil);text-decoration:underline;padding:0;font-size:13px}
+.evc{display:block;width:100%;text-align:left;background:var(--sheet);border:1.5px solid var(--grid-soft);border-radius:6px;padding:12px 14px;margin-bottom:8px;font-family:var(--kyo);font-size:17px;line-height:1.7}
+.evc.sel{border-color:var(--grid);background:var(--grid-soft)}
+.evc.good{border-color:var(--ok)}
+.evc.bad{border-color:var(--red);background:var(--red-soft)}
+.evc.missed{border-color:var(--ok);border-style:dashed}
+.evc small{display:block;font-family:var(--ui);font-size:13px;color:var(--pencil);margin-top:4px}
+.opt{display:block;width:100%;text-align:left;background:var(--sheet);border:1.5px solid var(--grid-soft);border-radius:6px;padding:12px 14px;margin-bottom:8px;font-size:16px}
+.opt.ok{border-color:var(--ok);color:var(--ok);font-weight:700}
+.opt.ng{border-color:var(--red);color:var(--red)}
+.pool,.built{display:flex;flex-wrap:wrap;gap:8px;min-height:52px}
+.built{border:1.5px dashed var(--grid);border-radius:6px;padding:8px;margin-bottom:12px}
+.wcard{font-family:var(--kyo);font-size:17px;background:var(--sheet);border:1.5px solid var(--grid);border-radius:4px;padding:8px 10px;line-height:1.4}
+.wcard.used{opacity:.25;pointer-events:none}
+.wcard.wrong{border-color:var(--red);color:var(--red)}
+.ref{font-size:15px;background:var(--grid-soft);border-radius:6px;padding:10px 12px;margin-bottom:14px}
+.ref b{font-family:var(--kyo);font-size:17px}
+.stepname{display:flex;gap:4px;margin-bottom:14px;font-size:12px;color:var(--pencil)}
+.stepname span{flex:1;text-align:center;border-top:4px solid var(--grid-soft);padding-top:4px}
+.stepname span.on{border-color:var(--grid);color:var(--ink);font-weight:700}
+.lvdots{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}
+.lvdots i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--grid)}
+.lvdots i.on{background:var(--grid)}
+.checkline{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:15px}
+.checkline input{width:20px;height:20px;flex:none;margin-top:3px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const KANJI_BASE = [
+// 大人になれなかった弟たちに
+["弟たち","僕","ぼく","（　）は中学生です。"],["弟たち","空襲","くうしゅう","（　）警報が鳴る。"],["弟たち","爆弾","ばくだん","（　）が落とされる。"],["弟たち","掘る","ほる","庭に穴を（　）。"],["弟たち","空き缶","あきかん","（　）を拾う。"],["弟たち","お菓子","おかし","（　）を食べる。"],["弟たち","疎開","そかい","田舎へ（　）する。"],["弟たち","四歳","よんさい","弟は（　）になった。"],["弟たち","親戚","しんせき","（　）の家に泊まる。"],["弟たち","渓流","けいりゅう","山の（　）で魚をつる。"],["弟たち","桃の花","もものはな","春に（　）がさく。"],["弟たち","覆う","おおう","顔を両手で（　）。"],["弟たち","渡る","わたる","橋を（　）。"],["弟たち","隣の村","となりのむら","（　）まで歩く。"],["弟たち","欲しい","ほしい","新しい靴が（　）。"],["弟たち","含む","ふくむ","水を口に（　）。"],["弟たち","乾く","かわく","洗濯物が（　）。"],["弟たち","遠慮","えんりょ","（　）なくどうぞ。"],["弟たち","澄む","すむ","秋の空気が（　）。"],["弟たち","爆撃","ばくげき","町が（　）を受ける。"],["弟たち","杉板","すぎいた","（　）で箱を作る。"],["弟たち","出棺","しゅっかん","（　）を見送る。"],
+// 星の花が降るころに
+["星の花","押す","おす","ボタンを（　）。"],["星の花","俺","おれ","「（　）の家に来いよ。」"],["星の花","塾","じゅく","学習（　）に通う。"],["星の花","先輩","せんぱい","部活の（　）。"],["星の花","廊下","ろうか","（　）を走らない。"],["星の花","暇","ひま","（　）な日曜日。"],["星の花","掲示","けいじ","（　）板を見る。"],["星の花","擦れ違い","すれちがい","気持ちの（　）。"],["星の花","香水","こうすい","（　）のかおり。"],["星の花","誘う","さそう","友達を遊びに（　）。"],["星の花","背ける","そむける","顔を（　）。"],["星の花","騒動","そうどう","教室で（　）が起こる。"],["星の花","戻る","もどる","席に（　）。"],["星の花","唇","くちびる","（　）をかむ。"],["星の花","駆ける","かける","校庭を（　）。"],["星の花","貧血","ひんけつ","（　）で倒れる。"],["星の花","遅い","おそい","帰りが（　）。"],["星の花","魂","たましい","一寸の虫にも五分の（　）。"],["星の花","繊細","せんさい","（　）な心。"],["星の花","探る","さぐる","ポケットの中を（　）。"],["星の花","日陰","ひかげ","（　）で休む。"],["星の花","黙読","もくどく","教科書を（　）する。"],["星の花","拭く","ふく","机を（　）。"],["星の花","涙","なみだ","（　）を流す。"],["星の花","草刈り","くさかり","庭の（　）。"],["星の花","丈夫","じょうぶ","（　）な体。"],["星の花","掃除","そうじ","教室の（　）。"],["星の花","厄介","やっかい","（　）な問題。"],["星の花","帽子","ぼうし","（　）をかぶる。"],["星の花","抱える","かかえる","荷物を（　）。"]
+];
+
+const TYPES = {
+ "気持ち":{end:/気持ち。?$/, endText:"〜気持ち。", frame:"［本文の根拠］＋［気持ちの言葉］＋気持ち。"},
+ "理由":{end:/(から|ため)。?$/, endText:"〜から。", frame:"［本文の根拠］＋から。"},
+ "こと":{end:/こと。?$/, endText:"〜こと。", frame:"［本文から分かる内容］＋こと。"},
+ "変化":{end:/変わった。?$/, endText:"〜に変わった。", frame:"［前の気持ち］気持ちから、［後の気持ち］気持ちに変わった。"},
+ "とき":{end:/とき。?$/, endText:"〜とき。", frame:"［何をしたか］＋とき。"},
+ "思い":{end:/思い。?$/, endText:"〜という思い。", frame:"［思いの中身］＋という思い。"}
+};
+
+const REVENGE_BASE = [
+{id:"r1", u:"大人になれなかった弟たちに", p:"57付近", q:"母が初めて泣いたのは、何をしたときか", type:"とき", max:20},
+{id:"r2", u:"大人になれなかった弟たちに", p:"57付近", q:"着物がなくなると、どのようなことがより難しくなるか", type:"こと", max:0},
+{id:"r3", u:"大人になれなかった弟たちに", p:"58", q:"母はどのようなことに気づいて泣いたのか（「栄養失調」という語を使う・20字以上）", type:"こと", max:30},
+{id:"r4", u:"星の花が降るころに", p:"63〜64", q:"「私」はなぜ戸部君を探したのか", type:"理由", max:30},
+{id:"r5", u:"星の花が降るころに", p:"63〜64", q:"ビニール袋をそっとなでたとき、「私」のどういう思いが込められているか", type:"思い", max:15}
+];
+
+const BUNSETSU = [
+{s:"ぼくは/毎朝/犬と/公園を/散歩する。", tip:"「ネ」を入れて自然に区切れるところが文節の切れ目。「散歩する」で一つ。"},
+{s:"妹が/かわいい/花を/庭に/植えた。", tip:"「花をネ」「庭にネ」と、「ネ」を入れて確かめよう。"},
+{s:"昨日/図書館で/面白い/本を/見つけた。", tip:"「図書館で」は「図書館」＋「で」で一つの文節。"},
+{s:"冷たい/風が/北から/強く/吹いて/いる。", tip:"「吹いて／いる」の「いる」は前を助ける補助の言葉で、別の文節になる。「吹いてネ、いるネ」。"},
+{s:"兄と/ぼくは/駅まで/走った。", tip:"「兄とネ」「ぼくはネ」。「兄とぼくは」は二つの文節。"},
+{s:"先生の/話を/静かに/聞く。", tip:"「静かに」で一つの文節。"},
+{s:"白い/雲が/ゆっくり/流れて/いく。", tip:"「流れて／いく」の「いく」も補助の言葉。別の文節になる。"},
+{s:"この/町には/大きな/川が/ある。", tip:"「この」「大きな」はそれだけで一つの文節。「町には」は「町」＋「に」＋「は」で一つ。"}
+];
+
+const ENDS = {
+ "理由":{label:"〜から。", re:/(から|ため)。?$/},
+ "気持ち":{label:"〜気持ち。", re:/気持ち。?$/},
+ "こと":{label:"〜こと。", re:/こと。?$/},
+ "思い":{label:"〜という思い。", re:/思い。?$/},
+ "変化":{label:"〜気持ちに変わった。", re:/変わった。?$/}
+};
+const TSUMUGU_H = [
+{id:"h1", unit:"星の花", page:"108", lines:"1〜6行目", title:"ポケットの上からなでた袋",
+ q:"「お守りみたいな小さなビニール袋をポケットの上からそっとなでた」とあるが、このときの「私」には、どのような思いがあるか。", end:"思い", max:15,
+ ev:[
+  {t:"中学に上がってもずっと親友でいようと、夏実と約束していた。",ok:true,why:"二人の関係が大切だったことが分かる。"},
+  {t:"去年の秋、この花で何か手作りしようと夏実と話していた。",ok:true,why:"袋の花は、夏実との思い出そのもの。"},
+  {t:"秋になったら新しい花を拾って、せっけんを作ろうと考えている。",ok:true,why:"二人でまた何かをしたい、という気持ちにつながる。"},
+  {t:"香水を作るのは無理だと思っている。",ok:false,why:"本文にある内容だが、袋をなでた理由とはつながらない。"},
+  {t:"夏実のことはもう気にしていない。",ok:false,why:"本文と反対。このあと夏実に声をかけようとしている。"}],
+ iikae:[
+  {q:"「私」が袋を「お守りみたい」と感じているのは、袋がどんなものだからか。",opts:["夏実との仲をつないでくれる、大切なもの","香りがなくなった、もういらないもの","戸部君からもらったもの"],a:0,why:"お守り＝大事にして、願いをこめるもの。袋には夏実との思い出の花が入っている。"}],
+ cards:["夏実と","仲直りしたい","という思い。"], decoy:["香水を作りたい"],
+ points:["夏実との関係が入っている","「仲直りしたい」（元のように戻りたい）が入っている","文末が「思い。」"]},
+{id:"h2", unit:"星の花", page:"109", lines:"1〜12行目", title:"窓から下を眺めた",
+ q:"「外にいる友達を探しているふうに熱心に下を眺めた」とあるが、「私」がそうしたのはなぜか。", end:"理由", max:40,
+ ev:[
+  {t:"声をかけたのに、夏実は顔を背けて通り過ぎてしまった。",ok:true,why:"この出来事が、すべてのきっかけ。"},
+  {t:"教室の中の戸部君がこちらを見ていることに気づいた。",ok:true,why:"人に見られていると分かったので、その場を離れた。"},
+  {t:"唇がふるえ、目のふちが熱くなっていた。",ok:true,why:"「私」の顔がどうなっていたかが分かる。"},
+  {t:"外に本当に友達がいた。",ok:false,why:"本文に「本当は友達なんていないのに」とある。"},
+  {t:"校庭からサッカー部のかけ声が聞こえた。",ok:false,why:"これは帰りの場面のこと。"}],
+ iikae:[
+  {q:"「唇がふるえている」「目のふちが熱い」は、どんな様子を表しているか。",opts:["泣きそうになっている","怒ってどなりそうになっている","暑くて汗をかいている"],a:0,why:"夏実に無視されたつらさで、涙が出そうになっている。"},
+  {q:"友達を「探しているふう」とは、どういうことか。",opts:["本当は探していないのに、探しているように見せること","本気で友達を探していること"],a:0,why:"「ふう」＝そのように見せかけること。本当の理由を隠している。"}],
+ cards:["夏実に無視されて","泣きそうな顔を","周りの人に","見られたくなかったから。"], decoy:["外の友達と話したかったから。"],
+ points:["夏実に無視された（顔を背けられた）ことが入っている","泣きそうな顔を見られたくない、が入っている","文末が「から。」"]},
+{id:"h3", unit:"星の花", page:"110", lines:"1〜6行目", title:"戸部君を探した",
+ q:"「戸部君を探した」とあるが、「私」が戸部君を探したのはなぜか。", end:"理由", max:40,
+ ev:[
+  {t:"夏実とのことを、戸部君に見られたのが気がかりだった。",ok:true,why:"探した理由の中心。"},
+  {t:"戸部君は、みんなの前で何を言いだすか分からないと思っていた。",ok:true,why:"だから先に確かめておきたかった。"},
+  {t:"戸部君がどこまで分かっているのか、探っておきたかった。",ok:true,why:"「探した」の目的がそのまま書かれている。"},
+  {t:"『あたかも』を使った文の作り方を教えたかった。",ok:false,why:"昼休みに、戸部君のほうが聞いてきたこと。"},
+  {t:"戸部君と仲良くなりたかった。",ok:false,why:"本文に書かれていない。このときの「私」は戸部君を警戒している。"}],
+ iikae:[
+  {q:"「繊細さのかけらもない戸部君」と「私」が思っているのは、戸部君をどんな人だと考えているからか。",opts:["人の気持ちを考えずに、何でも口に出してしまう人","やさしくて気がきく人","無口で何も話さない人"],a:0,why:"だから「みんなの前で何を言いだすか知れたものじゃない」と心配している。"}],
+ cards:["夏実とのことを","見ていた戸部君が","どこまで分かっているか","探りたかったから。"], decoy:["宿題を教えたかったから。"],
+ points:["夏実とのことを見られた、が入っている","どこまで分かっているか確かめたい、が入っている","文末が「から。」"]},
+{id:"h4", unit:"星の花", page:"110", lines:"9〜15行目", title:"小さく、くだらない",
+ q:"「なんだか急に自分の考えていたことがひどく小さく、くだらないことに思えてきた」とあるが、なぜそう思えたのか。", end:"理由", max:55,
+ ev:[
+  {t:"戸部君は、練習しているみんなから離れた所で、一人でボールを磨いていた。",ok:true,why:"人に見られていない所での戸部君の姿。"},
+  {t:"日陰もない校庭の隅で、背中を丸めて黙々と磨いていた。",ok:true,why:"だれにほめられるわけでもないのに、まじめに続けている。"},
+  {t:"使ったら手入れをしないとだめだと、戸部君が言っていたのを思い出した。",ok:true,why:"戸部君が物を大切にする人だと分かる。"},
+  {t:"戸部君は、サッカー部の誰かといつもふざけている。",ok:false,why:"昼休みの場面の戸部君。ここでは別の姿を見せている。"},
+  {t:"戸部君は、夏実とのことをみんなに話していた。",ok:false,why:"本文に書かれていない。"}],
+ iikae:[
+  {q:"人の見ていない所で黙々とボールを磨く姿から、「私」は戸部君のどんな面に気づいたか。",opts:["見えない所でも、物を大切にするまじめな面","人前で目立ちたがる面","練習をさぼる面"],a:0,why:"昼休みのふざけた戸部君とはちがう面。"},
+  {q:"それに比べて、「私」が考えていたことはどんなことだったか。",opts:["戸部君に何を言われるか、人の目ばかり気にしていたこと","サッカーがうまくなりたいということ"],a:0,why:"自分がどう見られるかばかり考えていたことに気づいた。"}],
+ cards:["人の見ていない所で","まじめにボールを手入れする戸部君に比べて、","自分は","人にどう見られるかばかり","気にしていたから。"], decoy:["戸部君が練習をさぼっていたから。"],
+ points:["見えない所でもまじめにボールを手入れする戸部君の姿が入っている","自分は人の目ばかり気にしていた、が入っている","文末が「から。」"]},
+{id:"h5", unit:"星の花", page:"111〜112", lines:"p.111の終わり〜p.112の3行目", title:"「たぶん」",
+ q:"「涙がにじんできたのはあんまり笑いすぎたせいだ、たぶん。」とあるが、「たぶん」という言葉から、涙についてどのようなことが読み取れるか。", end:"こと", max:40,
+ ev:[
+  {t:"戸部君とのやりとりで、二人で顔を見合わせて吹き出した。",ok:true,why:"笑ったこと自体は本当。"},
+  {t:"昼休みに、夏実に顔を背けられたばかりだった。",ok:true,why:"この日の「私」の心には、つらい出来事が残っている。"},
+  {t:"涙の理由を、「私」は笑いすぎたせいだと言い切っていない。",ok:true,why:"「たぶん」がついている。"},
+  {t:"戸部君の背が、自分よりずっと高くなっていた。",ok:false,why:"本文にある内容だが、涙の理由とは別のこと。"},
+  {t:"戸部君にからかわれて、くやしかった。",ok:false,why:"二人は笑い合っていて、くやしさは書かれていない。"}],
+ iikae:[
+  {q:"「たぶん」とつけているのは、どういうことを表しているか。",opts:["笑いすぎ以外にも、涙の理由があるかもしれないこと","絶対に笑いすぎが理由だということ","本当は涙が出ていないこと"],a:0,why:"言い切らないことで、自分でも気づかない気持ちがあることを表している。"},
+  {q:"笑いすぎ以外の理由として考えられるのは、どれか。",opts:["夏実とうまくいかない悲しさが、心に残っていた","戸部君の背が高くなっていて、くやしかった"],a:0,why:"笑ったことで、ためていた気持ちがあふれた。"}],
+ cards:["笑いすぎただけでなく","夏実とのことの","悲しさも","まじっていたこと。"], decoy:["戸部君へのいかり"],
+ points:["笑いすぎだけではない、が入っている","夏実とのことの悲しさが入っている","文末が「こと。」"]},
+{id:"h6", unit:"星の花", page:"112〜113", lines:"p.112の4行目〜最後", title:"木の下をくぐって出た",
+ q:"「私」が星形の花を土の上に落とし、銀木犀の木の下をくぐって出たことから、「私」の気持ちはどのように変わったと分かるか。「〜気持ちから、〜気持ちに変わった。」の形で書きなさい。", end:"変化", max:50,
+ ev:[
+  {t:"前は、銀木犀の木の下にいれば、どんなことからも木が守ってくれると信じていた。",ok:true,why:"変わる前の「私」。"},
+  {t:"常緑樹も、古い葉を落として新しい葉を生やしていると、おばさんに教えられた。",ok:true,why:"気持ちが変わるきっかけ。"},
+  {t:"また夏実と花を拾っても、違う誰かとでも「どちらだっていい」と思った。",ok:true,why:"変わった後の「私」。"},
+  {t:"おばさんに、木の下は案外厄介だと言われて腹が立った。",ok:false,why:"腹を立てたとは書かれていない。"},
+  {t:"もう二度と夏実とは話さないと決めた。",ok:false,why:"「いつかまた夏実と花を拾える日が来るかもしれない」とあり、決めつけていない。"}],
+ iikae:[
+  {q:"古い葉を落として新しい葉を生やす銀木犀の話は、「私」にとって何を表しているか。",opts:["古いものを手放しても、新しいものが生まれてくること","木はいつも同じで変わらないこと","掃除が大変だということ"],a:0,why:"夏実との思い出を手放しても、また新しい関係が生まれる。"},
+  {q:"木の下を「くぐって出た」という行動が表しているのは、どれか。",opts:["守られた場所から出て、自分の力で歩き出すこと","木の下にずっといたいこと"],a:0,why:"木の下＝二人だけの秘密基地。そこから出ていく。"}],
+ cards:["夏実との思い出に","しがみついていた気持ちから、","前を向いて","歩き出そうという気持ちに","変わった。"], decoy:["夏実を忘れたい気持ちに"],
+ points:["前の気持ち（夏実との思い出にしがみつく）が入っている","後の気持ち（前を向いて歩き出す）が入っている","文末が「変わった。」"]}
+];
+
+const OTOUTO = [
+{id:"o1", unit:"弟たち", page:"98", lines:"1〜9行目", title:"ミルクをぬすみ飲みした",
+ q:"「僕は隠れて、ヒロユキの大切なミルクをぬすみ飲みしてしまいました」とあるが、「僕」がそうしてしまったのはなぜか。", end:"理由", max:50,
+ ev:[
+  {t:"そのころは、甘いものなど何もない時代だった。",ok:true,why:"あめもチョコレートもお菓子もなかった。"},
+  {t:"食いしん坊の「僕」には、甘い弟のミルクがよだれが出るほど飲みたいものだった。",ok:true,why:"ぬすみ飲みした理由の中心。"},
+  {t:"ミルクはヒロユキの大切な食べ物で、ほかには何も食べられなかった。",ok:true,why:"それを分かっていても飲んでしまった、というところが大事。"},
+  {t:"母が、少しなら飲んでいいと言ってくれた。",ok:false,why:"本文と反対。母は「ヒロユキはそれしか食べられない」と言っていた。"},
+  {t:"ヒロユキがミルクを飲みたがらなかった。",ok:false,why:"本文に書かれていない。"}],
+ iikae:[
+  {q:"「よだれが出るほど飲みたい」とは、どのくらいの気持ちか。",opts:["がまんできないほど、飲みたくてたまらない","少し味見してみたい","本当は飲みたくない"],a:0,why:"それほど、おなかがすいていて甘いものに飢えていた。"},
+  {q:"「どんなに悪いことか、よくわかっていた」のに飲んでしまったことから、何が分かるか。",opts:["悪いと分かっていても止められないほど、ひもじかった","ヒロユキのことがきらいだった"],a:0,why:"「弟がかわいくてしかたがなかった」とも書かれている。"}],
+ cards:["甘いものが何もないころで、","食いしん坊の僕には","弟のミルクが","がまんできないほど","飲みたいものだったから。"], decoy:["ヒロユキのことがきらいだったから。"],
+ points:["甘いものが何もない時代だった、が入っている","ミルクが飲みたくてがまんできなかった、が入っている","文末が「から。」"]},
+{id:"o2", unit:"弟たち", page:"98〜99", lines:"p.98の最後〜p.99の6行目", title:"母の美しい顔",
+ q:"「僕はあんなに美しい顔を見たことはありません」とあるが、「僕」が母の顔を美しいと感じたのはなぜか。", end:"理由", max:45,
+ ev:[
+  {t:"はるばる頼りに行った親戚の人に、うちに食べ物はないと言われた。",ok:true,why:"この出来事のあとの母の顔。"},
+  {t:"母はそれを聞くなり、帰ろうと言って、くるりと後ろを向いて帰った。",ok:true,why:"母の行動から気持ちを読む。"},
+  {t:"「僕たち子供を必死で守ってくれる母の顔」と書かれている。",ok:true,why:"「美しい」の中身がそのまま書かれている。"},
+  {t:"母は親戚の人とけんかをした。",ok:false,why:"本文に書かれていない。母は何も言わずに帰った。"},
+  {t:"疎開先の山の村は、桃源郷のように美しかった。",ok:false,why:"景色が美しいという話で、母の顔とは別のこと。"}],
+ iikae:[
+  {q:"「くるりと後ろを向いて帰りました」という行動は、母のどんな気持ちを表しているか。",opts:["人に頼らず、自分の力で子供を守ろうという強い気持ち","親戚の家に遊びに来ただけという気持ち","疲れたので早く休みたい気持ち"],a:0,why:"断られても頭を下げ続けず、すぐに次へ向かった。"},
+  {q:"「強い顔でした。でも悲しい悲しい顔でした」から分かるのは、どれか。",opts:["子供を守る強さと、断られたつらさの両方がこもっていた","母は少しも悲しんでいなかった"],a:0,why:"強さと悲しさの両方があるから、「僕」は忘れられない。"}],
+ cards:["親戚に断られても、","悲しみをこらえて","子供たちを必死で","守ろうとする顔だったから。"], decoy:["親戚とけんかをした顔だったから。"],
+ points:["親戚に断られた、が入っている","子供を必死で守ろうとする、が入っている","文末が「から。」"]},
+{id:"o3", unit:"弟たち", page:"100", lines:"5〜10行目", title:"母の着物はなくなりました",
+ q:"「母の着物はなくなりました」とあるが、着物がなくなると、どのようなことが難しくなるか。", end:"こと", max:35,
+ ev:[
+  {t:"疎開者には配給もなかった。",ok:true,why:"食べ物を手に入れる方法がない。"},
+  {t:"母は自分の着物を持っていき、近所の農家の人に米と交換してもらっていた。",ok:true,why:"着物＝食べ物と交換するためのもの。"},
+  {t:"隣村にやぎを飼っている農家があると聞いて、母は着物を包んで出かけた。",ok:true,why:"ヒロユキのお乳（やぎの乳）も、着物と交換していた。"},
+  {t:"母が、着る服がなくなって寒い思いをする。",ok:false,why:"ありそうに思えるが、本文の話の中心は食べ物のこと。"},
+  {t:"「僕」が、川へ遊びに行けなくなる。",ok:false,why:"着物とは関係がない。"}],
+ iikae:[
+  {q:"この時期の「母の着物」は、家族にとってどんなものだったか。",opts:["食べ物やお乳と交換できる、大切な財産","ふだん着ている、ふつうの服","人にあげるためのおみやげ"],a:0,why:"配給がないので、着物と交換するしか食べ物を手に入れる方法がなかった。"}],
+ cards:["着物と交換して、","ヒロユキのお乳や","家族の食べ物を","手に入れること。"], decoy:["寒さをしのぐこと。"],
+ points:["食べ物（お乳）を手に入れる、が入っている","着物と交換していた、が入っている","文末が「こと。」"]},
+{id:"o4", unit:"弟たち", page:"102", lines:"12〜16行目", title:"ヒロユキは幸せだった",
+ q:"「ヒロユキは幸せだった」とあるが、母がこのように言ったのはなぜか。", end:"理由", max:45,
+ ev:[
+  {t:"空襲の爆撃で死ねば、みんなばらばらで死ぬ。",ok:true,why:"母がくらべているもう一つの死に方。"},
+  {t:"ヒロユキは、母と兄とお医者さん、看護婦さんにみとられて死んだ。",ok:true,why:"「幸せ」の中身。"},
+  {t:"母は、ヒロユキの顔に飛んでくるはえを手ではらいながら言った。",ok:true,why:"最後まで弟を大切にしている母の様子。"},
+  {t:"ヒロユキは、病気がすっかり治っていた。",ok:false,why:"本文と反対。ヒロユキは栄養失調で死んだ。"},
+  {t:"空はとても青く、B29が美しく輝いていた。",ok:false,why:"帰り道の情景で、母の言葉の理由ではない。"}],
+ iikae:[
+  {q:"「みとられて死んだ」とは、どういうことか。",opts:["最期を、そばにいる人たちに見守られながら死んだ","だれにも気づかれずに死んだ","病院から逃げ出した"],a:0,why:"家族やお医者さんがそばにいた。"},
+  {q:"子供が死んだのに「幸せだった」と言う言葉から、何が分かるか。",opts:["みとられて死ぬことさえ幸せだと思うほど、つらい時代だった","母は悲しんでいなかった"],a:0,why:"戦争の中では、家族のそばで死ねることも当たり前ではなかった。"}],
+ cards:["空襲でばらばらに死ぬのではなく、","家族やお医者さんに","みとられて","死ねたから。"], decoy:["病気が治ったから。"],
+ points:["空襲で（ばらばらに）死ぬのとくらべている","家族などにみとられて死んだ、が入っている","文末が「から。」"]},
+{id:"o5", unit:"弟たち", page:"103", lines:"1〜4行目", title:"母は初めて泣きました",
+ q:"「そのとき、母は初めて泣きました」とあるが、母はどのようなことに気づいて泣いたのか。「栄養失調」という言葉を使って書きなさい。", end:"こと", max:35,
+ ev:[
+  {t:"ヒロユキの病名は、栄養失調だった。",ok:true,why:"「栄養失調」はここから。"},
+  {t:"小さな弟だったが、小さな棺には入らなかった。",ok:true,why:"思っていたより、ヒロユキは大きかった。"},
+  {t:"母は「大きくなっていたんだね」と言って、ひざを曲げて棺に入れた。",ok:true,why:"母が気づいたことが、言葉に表れている。"},
+  {t:"棺が大きすぎて、ヒロユキの体が動いてしまった。",ok:false,why:"本文と反対。棺が小さすぎて入らなかった。"},
+  {t:"家では祖母と妹が泣いて待っていた。",ok:false,why:"本文にある内容だが、母が泣いた理由ではない。"}],
+ iikae:[
+  {q:"「大きくなっていたんだね」という言葉には、母のどんな気づきがこめられているか。",opts:["栄養失調だったのに、ヒロユキはちゃんと育っていた","ヒロユキは少しも大きくなっていなかった","棺を作り直さないといけない"],a:0,why:"それまで泣かなかった母が、ここで初めて泣いた。"},
+  {q:"その気づきが、なぜ母を泣かせたのか。",opts:["育っていたのに、生きて大きくなることができなかったから","棺を作ってもらうのが申し訳なかったから"],a:0,why:"育っていた命が失われた悲しさが、一気にあふれた。"}],
+ cards:["栄養失調でも、","ヒロユキが","ちゃんと大きく","育っていたこと。"], decoy:["棺が大きすぎたこと。"],
+ points:["「栄養失調」という言葉を使っている","ヒロユキが大きく育っていた、が入っている","文末が「こと。」"]},
+{id:"o6", unit:"弟たち", page:"103", lines:"5〜10行目と題名", title:"題名の「弟たち」",
+ q:"題名が「弟」ではなく「弟たち」となっているのはなぜだと考えられるか。", end:"理由", max:45,
+ ev:[
+  {t:"弟が死んで九日後にヒロシマに、その三日後にナガサキに原子爆弾が落とされた。",ok:true,why:"ヒロユキのほかにも、たくさんの子供が戦争で死んだ。"},
+  {t:"空襲の爆撃では、みんなばらばらで死ぬと母は言っていた。",ok:true,why:"戦争では、多くの人がそういう死に方をした。"},
+  {t:"「僕はひもじかったことと、弟の死は一生忘れません」と書かれている。",ok:true,why:"作者が伝え続けたい思い。"},
+  {t:"「僕」には、ヒロユキのほかにも何人も弟がいた。",ok:false,why:"本文に出てくる弟はヒロユキ一人。ほかは妹。"},
+  {t:"戦争は一九四五年八月十五日に終わった。",ok:false,why:"本当のことだが、「たち」の理由にはならない。"}],
+ iikae:[
+  {q:"「大人になれなかった」のは、ヒロユキだけか。",opts:["戦争で、大人になる前に死んだ子供はたくさんいた","ヒロユキだけだった"],a:0,why:"原爆や空襲でも、多くの子供が亡くなった。"}],
+ cards:["ヒロユキだけでなく、","戦争で大人になれずに死んだ","多くの子供たちに","向けて書いているから。"], decoy:["僕には弟が何人もいたから。"],
+ points:["ヒロユキだけではない、が入っている","戦争で死んだ多くの子供たち、が入っている","文末が「から。」"]}
+];
+
+const TSUMUGU=[];for(let i=0;i<Math.max(OTOUTO.length,TSUMUGU_H.length);i++){if(OTOUTO[i])TSUMUGU.push(OTOUTO[i]);if(TSUMUGU_H[i])TSUMUGU.push(TSUMUGU_H[i]);}
+
+</script>
+<script>
+const KEY="kokugo-lab-v1";
+function load(){try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):{};}catch(e){return {};}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=Object.assign({kanji:{},extraKanji:[],units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:[],bun:{},days:[]},load());
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+const UNIT_NAMES={"弟たち":"大人になれなかった弟たちに","星の花":"星の花が降るころに"};
+function allKanji(){return KANJI_BASE.map(a=>({u:a[0],k:a[1],r:a[2],h:a[3]})).concat(S.extraKanji).map(o=>Object.assign({id:o.u+"|"+o.k},o));}
+function units(){const u=[];allKanji().forEach(o=>{if(!u.includes(o.u))u.push(o.u)});return u;}
+function unitOn(u){return S.units[u]!==false;}
+function allRev(){return REVENGE_BASE.concat(S.extraRev);}
+function isWeekend(){const d=new Date().getDay();return d===0||d===6;}
+function ensureDaily(){if(S.daily.date!==today()){S.daily={date:today(),kanjiDone:false,kijDone:false,queue:null,tsuId:null};save();}}
+function markDay(){if(S.daily.kanjiDone&&S.daily.kijDone&&!S.days.includes(today())){S.days.push(today());S.days=S.days.slice(-120);save();}}
+function streak(){let n=0;const d=new Date();for(;;){const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");if(S.days.includes(k)){n++;d.setDate(d.getDate()-1);}else if(n===0&&k===today()){d.setDate(d.getDate()-1);}else break;}return n;}
+function genko(text,max){
+  const ch=[...String(text).replace(/\n/g,"")];
+  const per=10;const need=Math.max(max||0,ch.length,10);const cols=Math.ceil(need/per);
+  let h='<div class="genko-wrap"><div class="genko">';
+  for(let c=0;c<cols;c++){h+='<div class="gcol">';for(let r=0;r<per;r++){const i=c*per+r;const over=max&&i>=max&&i<ch.length;const lim=max&&i===max-1;h+=`<div class="gcell${over?" over":""}${lim?" limit":""}">${ch[i]?esc(ch[i]):""}</div>`;}h+=`<div class="gnum">${(c+1)*per}</div></div>`;}
+  return h+"</div></div>";
+}
+function count(t){return [...String(t).replace(/\n/g,"")].length;}
+function maru(el){const d=document.createElement("div");d.className="maru";d.innerHTML='<svg viewBox="0 0 200 200" width="180" height="180"><circle cx="100" cy="100" r="80" transform="rotate(-100 100 100)"/></svg>';el.appendChild(d);setTimeout(()=>d.remove(),1400);}
+function head(back){return `<header class="top">${back?'<button class="back" onclick="home()">← もどる</button>':'<h1 class="logo">国語学習サポート</h1>'}<span class="date">${new Date().toLocaleDateString("ja-JP",{month:"long",day:"numeric",weekday:"short"})}</span></header>`;}
+
+/* ---------- HOME ---------- */
+function home(){
+  ensureDaily();
+  const st=streak();
+  $("#app").innerHTML=head(false)+`
+  <h2>今日のメニュー</h2>
+  <div class="menu">
+    <button class="task${S.daily.kanjiDone?" done":""}" onclick="startKanji(false)"><span class="num">${S.daily.kanjiDone?"○":"一"}</span><span><span class="t">漢字 5問</span><span class="s">${S.daily.kanjiDone?"今日の分はできた。もう5問やってもいい":"紙に書いて、自分で丸つけ"}</span></span></button>
+    <button class="task${S.daily.kijDone?" done":""}" onclick="startTsu()"><span class="num">${S.daily.kijDone?"○":"二"}</span><span><span class="t">言葉を紡ぐ（記述 1問）</span><span class="s">${S.daily.kijDone?"今日の分はできた":esc(tsuSub())}</span></span></button>
+  </div>
+  <h3>${isWeekend()?"週末にやること":"週末用"}</h3>
+  <div class="sub">
+    <button class="subbtn" onclick="revList()"><b>ワークの見直し</b><span>赤で直した記述を、答えをかくして書き直す</span></button>
+    <button class="subbtn" onclick="bunsetsu()"><b>文節チェック</b><span>文を文節に区切る</span></button>
+  </div>
+  <p class="streak">${st?`毎日の2つを続けた日：${st}日`:"漢字と言葉を紡ぐの2つで、今日の分は完了"}</p><p style="font-size:13px;color:var(--pencil);margin:4px 0 0">言葉を紡ぐは、教科書とノートを手元に置いてやろう。</p>
+  <div class="foot"><button onclick="settings()">習った教材・問題の追加</button><button onclick="tsuList()">言葉を紡ぐの問い一覧</button></div>`;
+  window.scrollTo(0,0);
+}
+
+/* ---------- KANJI ---------- */
+let KQ=null;
+function buildQueue(){
+  const t=today();const items=allKanji().filter(o=>unitOn(o.u));
+  const due=items.filter(o=>S.kanji[o.id]&&S.kanji[o.id].due<=t).sort((a,b)=>S.kanji[a.id].due<S.kanji[b.id].due?-1:1);
+  const fresh=items.filter(o=>!S.kanji[o.id]);
+  return due.concat(fresh).slice(0,5).map(o=>({id:o.id,dir:Math.random()<.65?"w":"r"}));
+}
+function startKanji(extra){
+  ensureDaily();
+  let q;
+  if(!extra&&!S.daily.kanjiDone&&S.daily.queue){q=S.daily.queue;}
+  else{q=buildQueue();if(!extra&&!S.daily.kanjiDone){S.daily.queue=q;save();}}
+  if(S.daily.kanjiDone&&!extra){q=buildQueue();extra=true;}
+  if(!q.length){$("#app").innerHTML=head(true)+`<div class="card"><p>いま出せる漢字がありません。</p><p>次の復習の日まで待つか、「習った教材・問題の追加」で教材をふやしてください。</p></div>`;return;}
+  KQ={q,i:0,res:[],extra};kanjiCard(false);
+}
+function kanjiCard(open){
+  const it=KQ.q[KQ.i];const o=allKanji().find(x=>x.id===it.id);
+  if(!o){KQ.i++;return KQ.i<KQ.q.length?kanjiCard(false):kanjiEnd();}
+  const dots=KQ.q.map((_,j)=>`<i class="${j<KQ.res.length?(KQ.res[j]?"on":"ng"):""}"></i>`).join("");
+  const blank=o.h.replace("（　）",`<em>${it.dir==="w"?"（　　）":esc(o.k)}</em>`);
+  const full=o.h.replace("（　）",`<em>${esc(o.k)}</em>`);
+  const qMain=it.dir==="w"?esc(o.r):esc(o.k);
+  const ask=it.dir==="w"?"漢字で書こう":"読みを書こう";
+  $("#app").innerHTML=head(true)+`<div class="dots">${dots}</div>
+  <div class="card" id="kc">
+    <div class="unit">${esc(UNIT_NAMES[o.u]||o.u)}　${ask}</div>
+    <div class="big">${qMain}</div>
+    <div class="phrase">${it.dir==="w"?blank.replace("<em>（　　）</em>",`<em>（${esc(o.r)}）</em>`):blank}</div>
+    ${open?`<div class="note" style="text-align:center"><div class="big" style="font-size:40px;margin:0">${it.dir==="w"?esc(o.k):esc(o.r)}</div><div class="phrase">${full}</div></div>
+    <div class="row"><button class="btn red" onclick="kanjiAns(false)">まちがえた</button><button class="btn" onclick="kanjiAns(true)">書けた</button></div>`
+    :`<p style="text-align:center;color:var(--pencil);margin-top:14px;font-size:14px">紙に書いてから答えを見る</p><div class="row"><button class="btn line" onclick="kanjiCard(true)">答えを見る</button></div>`}
+  </div>`;
+}
+function kanjiAns(ok){
+  const it=KQ.q[KQ.i];const s=S.kanji[it.id]||{lv:-1};
+  if(ok){if(s.lv<=0){s.lv=1;s.due=addDays(7);}else if(s.lv===1){s.lv=2;s.due=addDays(21);}else{s.lv=3;s.due=addDays(60);}}
+  else{s.lv=0;s.due=addDays(2);}
+  S.kanji[it.id]=s;KQ.res.push(ok);save();
+  if(ok)maru($("#kc"));
+  setTimeout(()=>{KQ.i++;if(KQ.i<KQ.q.length)kanjiCard(false);else kanjiEnd();},ok?650:150);
+}
+function kanjiEnd(){
+  if(!KQ.extra){S.daily.kanjiDone=true;S.daily.queue=null;save();markDay();}
+  const n=KQ.res.filter(Boolean).length;
+  $("#app").innerHTML=head(true)+`<div class="card" style="text-align:center"><div class="big">${n} / ${KQ.res.length}</div>
+  <p>${n===KQ.res.length?"ぜんぶ書けた。":"まちがえた漢字は2日後にまた出てくる。"}</p>
+  ${kanjiProgress()}
+  <div class="row"><button class="btn line" onclick="startKanji(true)">もう5問</button><button class="btn" onclick="home()">メニューへ</button></div></div>`;
+}
+function kanjiProgress(){
+  return units().filter(unitOn).map(u=>{const it=allKanji().filter(o=>o.u===u);const m=it.filter(o=>S.kanji[o.id]&&S.kanji[o.id].lv>=2).length;
+  return `<div class="prog" style="margin-top:10px"><span style="min-width:8em;text-align:left">${esc(UNIT_NAMES[u]||u)}</span><span class="bar"><i style="width:${Math.round(m/it.length*100)}%"></i></span><span>${m}/${it.length}</span></div>`;}).join("")+`<p style="font-size:12px;color:var(--pencil);margin-top:8px">2回つづけて書けたら定着としてカウント</p>`;
+}
+
+/* ---------- 言葉を紡ぐ ---------- */
+const STEPS={1:["問い","根拠","言いかえ","つなぐ","書く"],2:["問い","根拠","言いかえ","書く"],3:["問い","書く"]};
+const LVNAME={1:"段階1　カードで組み立てる",2:"段階2　カードなしで書く",3:"段階3　問いだけで書く"};
+let T=null;
+function tsuState(id){return S.tsu[id]||{lv:1,done:false,hist:[]};}
+function tsuItems(){const on=TSUMUGU.filter(t=>unitOn(t.unit));return on.length?on:TSUMUGU;}
+function pickTsu(){
+  ensureDaily();
+  if(S.daily.tsuId&&TSUMUGU.find(t=>t.id===S.daily.tsuId))return S.daily.tsuId;
+  const items=tsuItems();const open=items.filter(t=>!tsuState(t.id).done);
+  let pick;
+  if(open.length){const m=Math.min(...open.map(t=>tsuState(t.id).lv));pick=open.find(t=>tsuState(t.id).lv===m);}
+  else{pick=items.slice().sort((a,b)=>{const x=tsuState(a.id).hist.slice(-1)[0],y=tsuState(b.id).hist.slice(-1)[0];return (x?x.d:"")<(y?y.d:"")?-1:1;})[0];}
+  S.daily.tsuId=pick.id;save();return pick.id;
+}
+function tsuSub(){const t=TSUMUGU.find(x=>x.id===pickTsu());const s=tsuState(t.id);return `「${t.title}」　${s.done?"復習":"段階"+s.lv}`;}
+function lvDots(s){return `<span class="lvdots">${[1,2,3].map(i=>`<i class="${s.done||i<s.lv?"on":""}"></i>`).join("")}</span>`;}
+function startTsu(id){
+  const it=TSUMUGU.find(t=>t.id===(id||pickTsu()));const s=tsuState(it.id);
+  if(!INTRO_SKIP&&!(S.intro&&S.intro[it.unit])){const after=id||"daily";return it.unit==="星の花"?curveStart(after):timelineStart(after);}
+  INTRO_SKIP=false;
+  T={it,lv:s.done?3:s.lv,si:0,daily:!id||id===S.daily.tsuId,end:null,sel:[],evChecked:false,ii:0,iiPick:null,built:[],pool:null,buildOk:false,shown:false};
+  T.pool=shuffle(it.cards.concat(it.decoy).map((c,i)=>({c,i})));
+  tsuRender();
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function tsuNext(){T.si++;tsuRender();window.scrollTo(0,0);}
+function tsuRender(){
+  const it=T.it;const steps=STEPS[T.lv];const step=steps[T.si];
+  let h=head(true)+`<div class="stepname">${steps.map((s,i)=>`<span class="${i<=T.si?"on":""}">${s}</span>`).join("")}</div><div class="card" id="tc">`;
+  h+=`<div class="unit">${esc(UNIT_NAMES[it.unit]||it.unit)}　${LVNAME[T.lv]}</div>`;
+  if(step==="問い"){
+    h+=`<div class="ref">教科書 <b>p.${esc(it.page)}　${esc(it.lines)}</b> を読んでから始めよう。</div><p class="q">${esc(it.q)}</p>
+    <p style="font-weight:700;margin-bottom:8px">この問いの答えは、どんな形で終わる？</p>
+    ${Object.keys(ENDS).map(k=>`<button class="opt${T.end===k?(k===it.end?" ok":" ng"):""}" onclick="T.end='${k}';tsuRender()">${ENDS[k].label}</button>`).join("")}`;
+    if(T.end===it.end)h+=`<div class="note">答えは「${ENDS[it.end].label}」で終わる。字数は${it.max}字以内。問いの最後の言葉が、答えの終わり方を決めている。</div><div class="row"><button class="btn" onclick="tsuNext()">次へ</button></div>`;
+    else if(T.end)h+=`<div class="note red">問いの最後の言葉をもう一度見てみよう。</div>`;
+  }else if(step==="根拠"){
+    h+=`<p class="q">${esc(it.q)}</p><p style="font-size:15px">教科書p.${esc(it.page)}を読んで、答えの<b>根拠</b>になるものを<b>すべて</b>選ぼう。</p>`;
+    it.ev.forEach((e,i)=>{let c="evc";let note="";
+      if(T.evChecked){if(e.ok&&T.sel.includes(i))c+=" good";else if(e.ok)c+=" missed";else if(T.sel.includes(i))c+=" bad";note=`<small>${e.ok?"根拠になる：":"根拠にならない："}${esc(e.why)}</small>`;}
+      else if(T.sel.includes(i))c+=" sel";
+      h+=`<button class="${c}" onclick="tsuEv(${i})">${T.evChecked?(e.ok?"✓ ":"✗ "):""}${esc(e.t)}${note}</button>`;});
+    if(!T.evChecked)h+=`<div class="row"><button class="btn" ${T.sel.length?"":"disabled"} onclick="T.evChecked=true;tsuRender()">確かめる</button></div>`;
+    else{const miss=it.ev.filter((e,i)=>e.ok&&!T.sel.includes(i)).length,bad=it.ev.filter((e,i)=>!e.ok&&T.sel.includes(i)).length;
+      h+=`<div class="note${miss||bad?" red":""}">${!miss&&!bad?"根拠をぴったり選べた。":"点線のものは見落とした根拠、赤いものは根拠にならないもの。理由を読んでおこう。"}</div><div class="row"><button class="btn" onclick="tsuNext()">次へ</button></div>`;}
+  }else if(step==="言いかえ"){
+    const q=it.iikae[T.ii];
+    h+=`<p style="font-size:15px;color:var(--pencil)">本文の行動や様子を、気持ちや意味の言葉に言いかえる。（${T.ii+1}/${it.iikae.length}）</p><p class="q">${esc(q.q)}</p>`;
+    q.opts.forEach((o,i)=>{let c="opt";if(T.iiPick!==null){if(i===q.a)c+=" ok";else if(i===T.iiPick)c+=" ng";}h+=`<button class="${c}" onclick="tsuIi(${i})">${esc(o)}</button>`;});
+    if(T.iiPick!==null){h+=`<div class="note${T.iiPick===q.a?"":" red"}">${T.iiPick===q.a?"そのとおり。":"答えは緑のもの。"}${esc(q.why)}</div><div class="row"><button class="btn" onclick="tsuIiNext()">次へ</button></div>`;}
+  }else if(step==="つなぐ"){
+    const text=T.built.map(i=>T.pool[i].c).join("");
+    h+=`<p class="q">${esc(it.q)}</p><p style="font-size:15px">拾った根拠と言いかえた言葉をつないで、答えを組み立てよう。<b>使わないカードが1枚</b>まざっている。</p>
+    <div class="built">${T.built.map((pi,k)=>`<button class="wcard${T.wrongAt===k?" wrong":""}" onclick="tsuUnbuild(${k})">${esc(T.pool[pi].c)}</button>`).join("")||'<span style="color:var(--pencil);font-size:14px;padding:6px">下のカードをタップして並べる</span>'}</div>
+    <div class="pool">${T.pool.map((p,i)=>`<button class="wcard${T.built.includes(i)?" used":""}" onclick="tsuBuild(${i})">${esc(p.c)}</button>`).join("")}</div>
+    ${genko(text,it.max)}`;
+    if(T.buildOk)h+=`<div class="note">つながった。次はこの答えを、見ないでノートに書く。</div><div class="row"><button class="btn" onclick="tsuNext()">次へ</button></div>`;
+    else{if(T.buildMsg)h+=`<div class="note red">${T.buildMsg}</div>`;h+=`<div class="row"><button class="btn" ${T.built.length?"":"disabled"} onclick="tsuCheckBuild()">確かめる</button></div>`;}
+  }else if(step==="書く"){
+    const model=it.cards.join("");
+    if(!T.shown){
+      h+=`${T.lv===3?`<div class="ref">教科書 <b>p.${esc(it.page)}　${esc(it.lines)}</b> を読み、根拠に線を引いてから書こう。</div>`:""}<p class="q">${esc(it.q)}</p>
+      <p style="font-size:15px">${T.lv===1?"さっき組み立てた答えを、画面を見ないでノートに書こう。":T.lv===2?"拾った根拠と言いかえた言葉を使って、ノートに自分で書こう。":"ノートに書こう。"}答えは「<b>${ENDS[it.end].label}</b>」で終わる。<b>${it.max}字以内</b>。</p>
+      ${genko("",it.max)}
+      <div class="row"><button class="btn" onclick="T.shown=true;tsuRender()">書けたら答えの例を見る</button></div>`;
+    }else{
+      h+=`<p class="q">${esc(it.q)}</p><h3 style="margin-top:0">答えの例</h3>${genko(model,it.max)}
+      <p style="font-size:15px;margin-top:10px">ノートの答えに、次のことが入っているか確かめよう。言葉がちがっても、中身が同じならよい。</p>
+      ${it.points.map((p,i)=>`<label class="checkline"><input type="checkbox">${esc(p)}</label>`).join("")}
+      <label class="checkline"><input type="checkbox">${it.max}字以内に収まっている</label>
+      <div class="selfeval"><button onclick="tsuEval('○')">○<span>全部入っていた</span></button><button onclick="tsuEval('△')">△<span>足りないものがあった</span></button><button onclick="tsuEval('×')">×<span>書けなかった</span></button></div>`;
+    }
+  }
+  $("#app").innerHTML=h+`</div>`;
+}
+function tsuEv(i){if(T.evChecked)return;T.sel=T.sel.includes(i)?T.sel.filter(x=>x!==i):T.sel.concat(i);tsuRender();}
+function tsuIi(i){if(T.iiPick!==null)return;T.iiPick=i;tsuRender();}
+function tsuIiNext(){T.iiPick=null;if(T.ii<T.it.iikae.length-1){T.ii++;tsuRender();}else tsuNext();}
+function tsuBuild(i){if(T.buildOk||T.built.includes(i))return;T.built.push(i);T.wrongAt=null;T.buildMsg="";tsuRender();}
+function tsuUnbuild(k){if(T.buildOk)return;T.built.splice(k,1);T.wrongAt=null;T.buildMsg="";tsuRender();}
+function tsuCheckBuild(){
+  const it=T.it;const seq=T.built.map(i=>T.pool[i].c);
+  if(seq.join("")===it.cards.join("")){T.buildOk=true;tsuRender();maru($("#tc"));return;}
+  const d=seq.findIndex(c=>it.decoy.includes(c));
+  if(d>=0){T.wrongAt=d;T.buildMsg="赤いカードは、この答えには使わない。根拠と言いかえを思い出そう。";}
+  else if(seq.length<it.cards.length){T.wrongAt=null;T.buildMsg="まだカードが足りない。";}
+  else{const k=seq.findIndex((c,j)=>c!==it.cards[j]);T.wrongAt=k;T.buildMsg=k===seq.length-1||seq[seq.length-1]!==it.cards[it.cards.length-1]?`答えの最後は「${ENDS[it.end].label}」の形になるカード。`:"赤いカードから、順番を見直そう。";}
+  tsuRender();
+}
+function tsuEval(m){
+  const it=T.it;const s=tsuState(it.id);const lv=T.lv;
+  s.hist.push({d:today(),lv,res:m});s.hist=s.hist.slice(-20);
+  if(m==="○"&&!s.done){if(s.lv>=3)s.done=true;else s.lv++;}
+  S.tsu[it.id]=s;if(T.daily)S.daily.kijDone=true;save();markDay();
+  if(m==="○")maru($("#tc"));
+  const msg=m==="○"?(s.done&&lv===3?"この問いは、問いだけで書けるようになった。":`次にこの問いが出るときは「${LVNAME[s.lv]}」。`):m==="△"?"足りなかったところを答えの例でたしかめよう。次も同じ段階でもう一度。":"次も同じ段階でもう一度。根拠と言いかえから組み立てよう。";
+  setTimeout(()=>{$("#app").innerHTML=head(true)+`<div class="card" style="text-align:center"><div class="big" style="color:var(--red)">${m}</div><p>${msg}</p><div class="row"><button class="btn" onclick="home()">メニューへ</button></div></div>`;},m==="○"?700:100);
+}
+function tsuList(){
+  $("#app").innerHTML=head(true)+`<h2>言葉を紡ぐ　問いの一覧</h2>
+  <h3 style="margin-top:0">作品の地図（各作品の最初に一度）</h3>
+  <div class="sub" style="margin-bottom:18px"><button class="subbtn" onclick="timelineStart(null)"><b>年表と対比${S.intro&&S.intro["弟たち"]?"　○":""}</b><span>大人になれなかった弟たちに</span></button><button class="subbtn" onclick="curveStart(null)"><b>気持ちの曲線${S.intro&&S.intro["星の花"]?"　○":""}</b><span>星の花が降るころに</span></button></div>
+  <h3>問い</h3><p style="font-size:15px">一つの問いを、段階1（カードで組み立てる）から段階3（問いだけで書く）まで進める。</p>
+  <div class="list">${TSUMUGU.map(t=>{const s=tsuState(t.id);return `<button class="item" onclick="startTsu('${t.id}')"><span class="mk${s.hist.length?"":" none"}">${s.hist.length?s.hist[s.hist.length-1].res:"・"}</span><span>${esc(t.title)}${lvDots(s)}<small>${esc(UNIT_NAMES[t.unit]||t.unit)}　教科書p.${esc(t.page)}</small></span></button>`;}).join("")}</div>`;
+}
+
+/* ---------- 作品の地図 ---------- */
+const CURVE = {unit:"星の花", scenes:[
+ {l:"去年の秋",p:"106",t:"夏実と銀木犀の木の下で、散る花を見上げて笑い合った。",ref:2,f:"楽しい、親友といっしょで幸せ"},
+ {l:"袋をなでる",p:"108",t:"今日こそ仲直りしようと決めて、廊下で夏実を待つ。胸がどきどき鳴っている。",ref:0.5,f:"期待と緊張"},
+ {l:"背けられる",p:"109",t:"声をかけたのに、夏実は顔を背けて通り過ぎてしまう。",ref:-2,f:"ショック、悲しい"},
+ {l:"窓から下",p:"109",t:"泣きそうな顔を隠して窓の外を眺める。景色が白々として見える。",ref:-1.5,f:"情けない、ひとりぼっち"},
+ {l:"ボール磨き",p:"110",t:"人の見ていない所で、黙々とボールを磨く戸部君を見る。",ref:-0.5,f:"自分の考えが小さく思える"},
+ {l:"水飲み場",p:"111",t:"戸部君の『あたかも』の文に、二人で吹き出して笑う。",ref:1,f:"おかしい、でも涙もにじむ"},
+ {l:"木の下",p:"112",t:"古い葉を落とす常緑樹の話を聞き、花を土に落として木の下を出る。",ref:1.5,f:"前を向ける、大丈夫"}],
+ turns:[
+ {a:1,b:2,why:"夏実に顔を背けられた。期待が大きかった分、落ち方も大きい。",q:"h2"},
+ {a:3,b:4,why:"黙々とボールを磨く戸部君の姿。自分が人の目ばかり気にしていたと気づく。",q:"h4"},
+ {a:4,b:5,why:"戸部君とのやりとりで笑う。ただし涙もにじんでいて、悲しさは消えていない。",q:"h5"},
+ {a:5,b:6,why:"常緑樹も古い葉を落として新しい葉を生やす、というおばさんの話。",q:"h6"}]};
+const TIMELINE = [
+ {t:"B29の空襲が毎日のようにあり、夜は防空壕で過ごす",p:"97"},
+ {t:"配給のミルクを、「僕」がぬすみ飲みしてしまう",p:"98"},
+ {t:"親戚に、うちに食べ物はないと断られる",p:"98〜99"},
+ {t:"山の村へ疎開する",p:"99"},
+ {t:"母が着物を、米ややぎの乳と交換する",p:"100"},
+ {t:"ヒロユキが病気になり、町の病院に入院する",p:"100"},
+ {t:"ヒロユキが栄養失調で死ぬ",p:"102",note:"病院から三人で歩いて帰る道で、空は高く澄み、B29が美しく輝いていた。"},
+ {t:"棺に入らず、母が初めて泣く",p:"103",note:"それまで泣かなかった母が、ここで初めて泣く。"},
+ {t:"ヒロシマとナガサキに原子爆弾が落とされる",p:"103",note:"弟が死んで九日後と、その三日後。"},
+ {t:"八月十五日、戦争が終わる",p:"103",note:"弟の死から、わずか十八日後。"}];
+const CONTRAST = [
+ {a:"美しい青空、桃の花が咲く山村、あゆの泳ぐ川",b:"これから始まる苦しい疎開の生活",p:"99"},
+ {a:"「僕」が見たことのないほど美しい母の顔",b:"頼りにした親戚に、食べ物はないと断られる",p:"98〜99"},
+ {a:"高く高く澄んだ空と、美しく輝くB29",b:"死んだ弟をおぶって、三人で歩いて帰る",p:"102"}];
+
+let CV=null;
+const CW=350,CH=210,CT=20,CB=190;
+const cy=v=>CT+(2-v)/4*(CB-CT), cx=i=>25+i*50;
+function curveStart(after){CV={v:Array(7).fill(null),sel:0,checked:false,after};curveRender();}
+function curveRender(){
+  const sc=CURVE.scenes;
+  let h=head(true)+`<h2>気持ちの曲線</h2><p style="font-size:15px">「星の花が降るころに」の「私」の気持ちを、場面ごとに<b>点を上下に動かして</b>描こう。上ほど明るく前向き、下ほど沈んでつらい。迷ったら教科書のページを開いて確かめよう。</p>
+  <div class="card"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--pencil)"><span>↑ 明るい・前向き</span><span id="cvn"></span></div>
+  <svg id="cv" viewBox="0 0 ${CW} ${CH}" style="width:100%;touch-action:none;display:block;cursor:pointer"></svg>
+  <div id="cvl" style="display:flex"></div>
+  <div style="font-size:12px;color:var(--pencil)">↓ 沈む・つらい</div>
+  <div id="cvbody"></div></div>`;
+  $("#app").innerHTML=h;
+  const el=$("#cv");let down=false;
+  const setFrom=e=>{const r=el.getBoundingClientRect();const px=(e.clientX-r.left)/r.width*CW,py=(e.clientY-r.top)/r.height*CH;
+    const i=Math.max(0,Math.min(6,Math.round((px-25)/50)));let v=2-(py-CT)/(CB-CT)*4;v=Math.max(-2,Math.min(2,Math.round(v*2)/2));CV.v[i]=v;CV.sel=i;};
+  el.addEventListener("pointerdown",e=>{if(CV.checked)return;down=true;try{el.setPointerCapture(e.pointerId);}catch(_){}setFrom(e);curveDraw(true);});
+  el.addEventListener("pointermove",e=>{if(!down)return;setFrom(e);curveDraw(true);});
+  const up=()=>{if(!down)return;down=false;curveDraw(false);};
+  el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
+  curveDraw(false);
+}
+function curveDraw(dragging){
+  const sc=CURVE.scenes;
+  let svg=`<line x1="0" x2="${CW}" y1="${cy(0)}" y2="${cy(0)}" stroke="var(--grid-soft)" stroke-width="1.5"/>`+
+  sc.map((s,i)=>`<line x1="${cx(i)}" x2="${cx(i)}" y1="${CT}" y2="${CB}" stroke="${i===CV.sel?"var(--grid)":"var(--grid-soft)"}" stroke-width="${i===CV.sel?2:1}"/>`).join("");
+  if(CV.checked)svg+=`<polyline points="${sc.map((s,i)=>cx(i)+","+cy(s.ref)).join(" ")}" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="6 5"/>`;
+  const pts=CV.v.map((v,i)=>v===null?null:cx(i)+","+cy(v)).filter(Boolean);
+  if(pts.length>1)svg+=`<polyline points="${pts.join(" ")}" fill="none" stroke="var(--grid)" stroke-width="3"/>`;
+  CV.v.forEach((v,i)=>{svg+=`<circle cx="${cx(i)}" cy="${cy(v===null?0:v)}" r="${v===null?7:9}" fill="${v===null?"var(--sheet)":"var(--grid)"}" stroke="var(--grid)" stroke-width="2"/>`;});
+  $("#cv").innerHTML=svg;
+  $("#cvn").textContent=CV.v.filter(v=>v!==null).length+"/7";
+  $("#cvl").innerHTML=sc.map((t,i)=>`<button onclick="CV.sel=${i};curveDraw(false)" style="flex:1;background:none;border:none;padding:4px 0;writing-mode:vertical-rl;height:90px;font-family:var(--kyo);font-size:14px;color:${i===CV.sel?"var(--ink)":"var(--pencil)"};font-weight:${i===CV.sel?600:400}">${t.l}</button>`).join("");
+  if(dragging)return;
+  const s=sc[CV.sel];
+  let h=`<div class="note"><b>p.${s.p}　${s.l}</b><br>${esc(s.t)}${CV.checked?`<br><span style="color:var(--red)">読み取れる気持ち：${esc(s.f)}</span>`:""}</div>`;
+  if(!CV.checked)h+=`<div class="row"><button class="btn" ${CV.v.includes(null)?"disabled":""} onclick="CV.checked=true;curveDraw(false)">${CV.v.includes(null)?"7つの場面すべてに点を置こう":"お手本の線と重ねる"}</button></div>`;
+  else{
+    h+=`<p style="font-size:14px;margin-top:12px">緑が自分の線、赤い点線がお手本の一例。形が似ていればよい。場面の名前をタップすると、それぞれの気持ちが見られる。大きく上下するところに、気持ちが変わるきっかけがある。</p>`;
+    CURVE.turns.forEach(t=>{const mine=CV.v[t.b]-CV.v[t.a],ref=sc[t.b].ref-sc[t.a].ref;const same=Math.sign(mine)===Math.sign(ref)&&mine!==0;
+      h+=`<div class="evc ${same?"good":"missed"}" style="cursor:default">${esc(sc[t.a].l)} → ${esc(sc[t.b].l)}　${ref>0?"上がる":"下がる"}${same?"　✓ 自分の線も同じ向き":""}<small>きっかけ：${esc(t.why)}</small></div>`;});
+    h+=`<div class="note">記述の「〜気持ちから、〜気持ちに変わった」は、この線の上下を言葉にしたもの。きっかけになる描写を根拠として使う。</div><div class="row"><button class="btn" onclick="introDone('星の花')">${CV.after?"今日の問いへ":"終わる"}</button></div>`;
+  }
+  $("#cvbody").innerHTML=h;
+}
+let TL=null;
+function timelineStart(after){TL={pool:shuffle(TIMELINE.map((e,i)=>i)),placed:[],checked:false,stage:"tl",after,pairs:{},pick:null,cchecked:false,right:shuffle(CONTRAST.map((c,i)=>i))};tlRender();}
+function tlRender(){
+  let h=head(true);
+  if(TL.stage==="tl"){
+    h+=`<h2>年表をつくる</h2><p style="font-size:15px">「大人になれなかった弟たちに」の出来事を、<b>起きた順</b>にタップして並べよう。まちがえたら、並べたカードをタップすると戻せる。</p><div class="card">
+    <div style="border-left:3px solid var(--grid);padding-left:12px;margin-bottom:14px">${TIMELINE.map((_,k)=>{const idx=TL.placed[k];if(idx===undefined)return `<div style="height:44px;border-bottom:1px dashed var(--grid-soft);color:var(--pencil);font-size:13px;padding-top:12px">${k+1}</div>`;
+      const ok=TL.checked?idx===k:null;const e=TIMELINE[idx];
+      return `<button class="evc ${ok===null?"sel":ok?"good":"bad"}" style="margin:6px 0" onclick="tlUnplace(${k})">${k+1}．${esc(e.t)}${TL.checked&&ok&&e.note?`<small>${esc(e.note)}</small>`:""}${TL.checked?`<small>p.${e.p}</small>`:""}</button>`;}).join("")}</div>
+    <div class="pool">${TL.pool.filter(i=>!TL.placed.includes(i)).map(i=>`<button class="wcard" style="font-size:15px;text-align:left" onclick="tlPlace(${i})">${esc(TIMELINE[i].t)}</button>`).join("")}</div>`;
+    if(TL.placed.length===TIMELINE.length&&!TL.checked)h+=`<div class="row"><button class="btn" onclick="TL.checked=true;tlRender()">確かめる</button></div>`;
+    if(TL.checked){const n=TL.placed.filter((idx,k)=>idx===k).length;
+      h+=n===TIMELINE.length?`<div class="note">全部正しい順に並んだ。母が初めて泣いたのは、弟が死んだときではなく、棺に入れるときだったことも確かめておこう。</div><div class="row"><button class="btn" onclick="TL.stage='ct';tlRender()">次へ：美しいものと悲しいこと</button></div>`
+      :`<div class="note red">${n}/${TIMELINE.length}が正しい位置。赤いカードをタップして戻し、教科書のページで確かめて並べ直そう。</div>`;}
+  }else{
+    h+=`<h2>美しいものと、悲しいこと</h2><p style="font-size:15px">この作品では、美しいものと悲しい出来事が同じ場面に書かれている。左をタップしてから、同じ場面の右をタップしてつなごう。</p><div class="card">`;
+    const colors=["var(--grid)","#3C6E9E","#B07A1E"];
+    h+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div>${CONTRAST.map((c,i)=>{const pr=TL.pairs[i];return `<button class="evc${TL.pick===i?" sel":""}" style="${pr!==undefined?`border-color:${colors[i]};border-width:3px`:""}" onclick="TL.pick=${i};tlRender()">${esc(c.a)}</button>`;}).join("")}</div>
+    <div>${TL.right.map(j=>{const owner=Object.keys(TL.pairs).find(k=>TL.pairs[k]===j);const ok=TL.cchecked&&owner!==undefined?+owner===j:null;
+      return `<button class="evc${ok===false?" bad":""}" style="${owner!==undefined?`border-color:${colors[owner]};border-width:3px`:""}" onclick="ctPick(${j})">${esc(CONTRAST[j].b)}${TL.cchecked?`<small>p.${CONTRAST[j].p}</small>`:""}</button>`;}).join("")}</div></div>`;
+    if(Object.keys(TL.pairs).length===CONTRAST.length&&!TL.cchecked)h+=`<div class="row"><button class="btn" onclick="TL.cchecked=true;tlRender()">確かめる</button></div>`;
+    if(TL.cchecked){const ok=CONTRAST.every((c,i)=>TL.pairs[i]===i);
+      h+=ok?`<div class="note">美しいものをわざと悲しい出来事と並べると、悲しさがいっそう強く伝わる。これを<b>対比</b>という。空が高く澄んで、B29さえ美しく見えるからこそ、弟を亡くした帰り道のつらさがきわだつ。</div><div class="row"><button class="btn" onclick="introDone('弟たち')">${TL.after?"今日の問いへ":"終わる"}</button></div>`
+      :`<div class="note red">赤い組み合わせがちがう。右のカードをもう一度タップするとはずせる。</div>`;}
+  }
+  $("#app").innerHTML=h+`</div>`;
+}
+function tlPlace(i){if(TL.checked)return;TL.placed.push(i);tlRender();}
+function tlUnplace(k){if(TL.checked&&TL.placed.every((idx,j)=>idx===j))return;TL.checked=false;TL.placed.splice(k,1);tlRender();}
+function ctPick(j){
+  const owner=Object.keys(TL.pairs).find(k=>TL.pairs[k]===j);
+  if(owner!==undefined){delete TL.pairs[owner];TL.cchecked=false;tlRender();return;}
+  if(TL.pick===null)return;TL.pairs[TL.pick]=j;TL.pick=null;TL.cchecked=false;tlRender();
+}
+function introDone(u){S.intro=S.intro||{};S.intro[u]=true;save();
+  const after=(u==="星の花"?CV:TL).after;if(after){INTRO_SKIP=true;startTsu(after==="daily"?undefined:after);}else tsuList();}
+let INTRO_SKIP=false;
+/* ---------- 赤のリベンジ ---------- */
+let R=null;
+function revList(){
+  $("#app").innerHTML=head(true)+`<h2>ワークの見直し</h2><p style="font-size:15px">ワークで赤を写した記述問題を、答えをかくして自分の力で書き直す。</p>
+  <div class="list">${allRev().map(r=>{const s=S.rev[r.id];return `<button class="item" onclick="revStart('${r.id}')"><span class="mk${s?"":" none"}">${s?s.res:"・"}</span><span>${esc(r.q)}<small>${esc(r.u)}　ワークp.${esc(r.p)}</small></span></button>`;}).join("")}</div>
+  <div class="foot"><button onclick="settings()">問題を追加する</button></div>`;
+}
+function revStart(id){R={r:allRev().find(x=>x.id===id),ans:(S.rev[id]&&S.rev[id].ans)||""};revRender();}
+function revRender(){
+  const r=R.r;const T=TYPES[r.type]||TYPES["こと"];
+  $("#app").innerHTML=head(true)+`<div class="card" id="rvc"><div class="unit">${esc(r.u)}　ワークp.${esc(r.p)}</div><p class="q">${esc(r.q)}${r.max?`（${r.max}字以内）`:""}</p>
+  <ol class="flow"><li>ワークのp.${esc(r.p)}を開いて、赤い答えを手かふせんでかくす。</li><li>設問の最後を見る。文末は「${T.endText}」。</li><li>教科書の本文で、根拠になるところに線を引く。</li><li>型：${esc(T.frame)}</li><li>下に書く（紙に書いてもいい）。</li></ol>
+  <textarea id="ta" placeholder="ここに答えを書く" oninput="R.ans=this.value;revLive()">${esc(R.ans)}</textarea><div id="live"></div>
+  <p style="font-size:14px;color:var(--pencil);margin:10px 0 0">書けたら赤い答えとくらべて、丸をつけよう。</p>
+  <div class="selfeval"><button onclick="revEval('○')">○<span>同じことが書けた</span></button><button onclick="revEval('△')">△<span>半分くらい</span></button><button onclick="revEval('×')">×<span>書けなかった</span></button></div></div>`;
+  revLive();
+}
+function revLive(){const r=R.r;const T=TYPES[r.type]||TYPES["こと"];const a=R.ans.trim();const n=count(a);
+  $("#live").innerHTML=`<div class="chips"><span class="chip ${T.end.test(a)?"ok":""}">${T.end.test(a)?"✓":"・"} 文末「${T.endText}」</span><span class="chip ${n&&(!r.max||n<=r.max)?"ok":""}">${r.max?`字数 ${n}/${r.max}`:`${n}字（字数はワークで確認）`}</span></div>${genko(R.ans,r.max)}`;}
+function revEval(m){S.rev[R.r.id]={res:m,date:today(),ans:R.ans};save();if(m==="○")maru($("#rvc"));setTimeout(revList,m==="○"?700:100);}
+
+/* ---------- 文節 ---------- */
+let B=null;
+function bunsetsu(){const i=BUNSETSU.findIndex((_,j)=>!S.bun[j]);B={i:i<0?0:i,marks:[],checked:false};bunRender();}
+function bunRender(){
+  const it=BUNSETSU[B.i];const raw=it.s.replace(/\//g,"");const chars=[...raw];
+  const ans=[];let p=0;for(const c of it.s){if(c==="/")ans.push(p-1);else p++;}
+  let h=head(true)+`<h2>文節チェック</h2><p style="font-size:15px">文節の切れ目をタップ。「ネ」を入れて自然に区切れるところが切れ目。</p><div class="card"><div class="unit">${B.i+1} / ${BUNSETSU.length}</div><div class="sentence">`;
+  chars.forEach((c,i)=>{if(c==="。")return;h+=`<span class="ch">${esc(c)}${chars[i+1]==="。"?"。":""}</span>`;if(i<chars.length-1&&chars[i+1]!=="。"){let cl="gap";if(B.marks.includes(i))cl+=" on";else if(B.checked&&ans.includes(i))cl+=" miss";h+=`<button class="${cl}" aria-label="${i+1}文字目のあとで区切る" onclick="bunTap(${i})"></button>`;}});
+  h+=`</div>`;
+  if(!B.checked)h+=`<div class="row"><button class="btn" onclick="bunCheck()">確かめる</button></div>`;
+  else{const ok=B.marks.length===ans.length&&ans.every(a=>B.marks.includes(a));h+=`<div class="note${ok?"":" red"}">${ok?"正解。":"正しい区切り："+esc(it.s.replace(/\//g,"／"))}<br>${esc(it.tip)}</div><div class="row">${B.i<BUNSETSU.length-1?`<button class="btn" onclick="B={i:${B.i+1},marks:[],checked:false};bunRender()">次の文</button>`:`<button class="btn" onclick="home()">メニューへ</button>`}</div>`;}
+  $("#app").innerHTML=h+`</div>`;
+}
+function bunTap(i){if(B.checked)return;B.marks=B.marks.includes(i)?B.marks.filter(x=>x!==i):B.marks.concat(i);bunRender();}
+function bunCheck(){const it=BUNSETSU[B.i];const ans=[];let p=0;for(const c of it.s){if(c==="/")ans.push(p-1);else p++;}
+  B.checked=true;S.bun[B.i]=B.marks.length===ans.length&&ans.every(a=>B.marks.includes(a));save();bunRender();}
+
+/* ---------- 設定 ---------- */
+function settings(){
+  $("#app").innerHTML=head(true)+`<h2>習った教材</h2><p style="font-size:15px">チェックした教材の漢字だけが出てくる。授業が進んだら追加しよう。</p>
+  <div class="units">${units().map(u=>`<label><input type="checkbox" ${unitOn(u)?"checked":""} onchange="S.units['${esc(u)}']=this.checked;save()">${esc(UNIT_NAMES[u]||u)}</label>`).join("")}</div>
+  <h2 style="margin-top:28px">漢字を追加</h2>
+  <label class="f">教材名</label><input id="au" placeholder="例：シジュウカラ">
+  <label class="f">漢字（答え）</label><input id="ak" placeholder="例：観察">
+  <label class="f">読み</label><input id="ar" placeholder="例：かんさつ">
+  <label class="f">使い方（（　）の所に入る）</label><input id="ah" placeholder="例：鳥を（　）する。">
+  <div class="row"><button class="btn" onclick="addKanji()">漢字を追加</button></div>
+  <h2 style="margin-top:28px">ワークの見直し問題を追加</h2>
+  <label class="f">教材名</label><input id="ru">
+  <label class="f">ワークのページ</label><input id="rp" placeholder="例：66">
+  <label class="f">設問（短くまとめてよい）</label><input id="rq">
+  <label class="f">何を聞かれている？</label><select id="rt">${Object.keys(TYPES).map(t=>`<option>${t}</option>`).join("")}</select>
+  <label class="f">字数（なければ0）</label><input id="rm" type="number" min="0" value="30">
+  <div class="row"><button class="btn" onclick="addRev()">見直し問題を追加</button></div>
+  <p id="msg" style="color:var(--ok);margin-top:10px"></p>
+  <div class="foot"><button onclick="if(confirm('記録をすべて消しますか？')){S={kanji:{},extraKanji:S.extraKanji,units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:S.extraRev,bun:{},days:[]};save();home();}">記録をリセット（追加した問題は残る）</button></div>`;
+}
+function addKanji(){const u=$("#au").value.trim(),k=$("#ak").value.trim(),r=$("#ar").value.trim();let h=$("#ah").value.trim();
+  if(!u||!k||!r){$("#msg").textContent="教材名・漢字・読みを入れてください。";return;}
+  if(!h.includes("（　）"))h="（　）";S.extraKanji.push({u,k,r,h});save();["#ak","#ar","#ah"].forEach(s=>$(s).value="");$("#msg").textContent=`「${k}」を追加した。`;}
+function addRev(){const u=$("#ru").value.trim(),p=$("#rp").value.trim(),q=$("#rq").value.trim();
+  if(!u||!q){$("#msg").textContent="教材名と設問を入れてください。";return;}
+  S.extraRev.push({id:"x"+Date.now(),u,p:p||"?",q,type:$("#rt").value,max:parseInt($("#rm").value)||0});save();["#rq","#rp"].forEach(s=>$(s).value="");$("#msg").textContent="見直し問題を追加した。";}
+
+home();
+</script>
+</body>
+</html>
