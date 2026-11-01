@@ -440,6 +440,7 @@ function startKanji(extra){
   KQ={q,i:0,res:[],extra};kanjiCard(false);
 }
 function kanjiCard(open){
+  if(!open)KQ.t0=Date.now();else KQ.ws=Math.round((Date.now()-(KQ.t0||Date.now()))/1000);
   const it=KQ.q[KQ.i];const o=allKanji().find(x=>x.id===it.id);
   if(!o){KQ.i++;return KQ.i<KQ.q.length?kanjiCard(false):kanjiEnd();}
   const dots=KQ.q.map((_,j)=>`<i class="${j<KQ.res.length?(KQ.res[j]?"on":"ng"):""}"></i>`).join("");
@@ -461,6 +462,7 @@ function kanjiAns(ok){
   const it=KQ.q[KQ.i];const s=S.kanji[it.id]||{lv:-1};
   if(ok){if(s.lv<=0){s.lv=1;s.due=addDays(7);}else if(s.lv===1){s.lv=2;s.due=addDays(21);}else{s.lv=3;s.due=addDays(60);}}
   else{s.lv=0;s.due=addDays(2);}
+  s.h=(s.h||[]).concat([[today(),ok?1:0,KQ.ws==null?null:KQ.ws]]).slice(-6);KQ.ws=null;
   S.kanji[it.id]=s;KQ.res.push(ok);save();
   if(ok)maru($("#kc"));
   setTimeout(()=>{KQ.i++;if(KQ.i<KQ.q.length)kanjiCard(false);else kanjiEnd();},ok?650:150);
@@ -499,7 +501,7 @@ function startTsu(id){
   const it=TSUMUGU.find(t=>t.id===(id||pickTsu()));const s=tsuState(it.id);
   if(!INTRO_SKIP&&!(S.intro&&S.intro[it.unit])){const after=id||"daily";return it.unit==="星の花"?curveStart(after):timelineStart(after);}
   INTRO_SKIP=false;
-  T={it,lv:s.done?3:s.lv,si:0,daily:!id||id===S.daily.tsuId,end:null,sel:[],evChecked:false,ii:0,iiPick:null,built:[],pool:null,buildOk:false,shown:false};
+  T={it,lv:s.done?3:s.lv,si:0,daily:!id||id===S.daily.tsuId,end:null,sel:[],evChecked:false,ii:0,iiPick:null,built:[],pool:null,buildOk:false,shown:false,t0:Date.now(),fails:0};
   T.pool=shuffle(it.cards.concat(it.decoy).map((c,i)=>({c,i})));
   tsuRender();
 }
@@ -562,6 +564,7 @@ function tsuUnbuild(k){if(T.buildOk)return;T.built.splice(k,1);T.wrongAt=null;T.
 function tsuCheckBuild(){
   const it=T.it;const seq=T.built.map(i=>T.pool[i].c);
   if(seq.join("")===it.cards.join("")){T.buildOk=true;tsuRender();maru($("#tc"));return;}
+  T.fails++;
   const d=seq.findIndex(c=>it.decoy.includes(c));
   if(d>=0){T.wrongAt=d;T.buildMsg="赤いカードは、この答えには使わない。根拠と言いかえを思い出そう。";}
   else if(seq.length<it.cards.length){T.wrongAt=null;T.buildMsg="まだカードが足りない。";}
@@ -570,7 +573,7 @@ function tsuCheckBuild(){
 }
 function tsuEval(m){
   const it=T.it;const s=tsuState(it.id);const lv=T.lv;
-  s.hist.push({d:today(),lv,res:m});s.hist=s.hist.slice(-20);
+  s.hist.push({d:today(),lv,res:m,sec:Math.round((Date.now()-T.t0)/1000),tries:lv===1?T.fails:null});s.hist=s.hist.slice(-20);
   if(m==="○"&&!s.done){if(s.lv>=3)s.done=true;else s.lv++;}
   S.tsu[it.id]=s;if(T.daily)S.daily.kijDone=true;save();markDay();
   if(m==="○")maru($("#tc"));
@@ -770,15 +773,15 @@ const LOG_URL="https://script.google.com/macros/s/AKfycby7lhyy9WtCE4ZqU48sLYJ5OG
 const LOG_KEY="Pphha1TEbK66QTPT";
 function syncRows(){
   const t=today();const md=d=>d?(+d.slice(5,7))+"/"+(+d.slice(8)):"";
-  const W=[["単元","問い","今の段階","やった回数","結果の流れ","最後にやった日"]];
+  const W=[["単元","問い","今の段階","やった回数","結果の流れ（かかった時間・並べ直し）","最後にやった日"]];
   TSUMUGU.forEach(it=>{const st=S.tsu[it.id];const u=UNIT_NAMES[it.unit]||it.unit;
     if(!st||!st.hist||!st.hist.length){W.push([u,it.title,"まだ",0,"",""]);return;}
-    W.push([u,it.title,st.done?"段階3まで完了":"段階"+st.lv,st.hist.length,st.hist.map(h=>md(h.d)+" 段階"+h.lv+" "+h.res).join(" → "),md(st.hist[st.hist.length-1].d)]);});
+    W.push([u,it.title,st.done?"段階3まで完了":"段階"+st.lv,st.hist.length,st.hist.map(h=>md(h.d)+" 段階"+h.lv+" "+h.res+tsuMeta(h)).join(" → "),md(st.hist[st.hist.length-1].d)]);});
   const KL={0:"まちがえた",1:"書けた（1回）",2:"書けた（2回）",3:"書けた（3回以上）"};
-  const K=[["単元","漢字","読み","今の状態","次に出る日"]];
+  const K=[["単元","漢字","読み","今の状態","次に出る日","最近の記録（日付・結果・答えを見るまでの時間）"]];
   allKanji().forEach(o=>{const st=S.kanji[o.id];const u=UNIT_NAMES[o.u]||o.u;
     if(!st||st.lv<0){K.push([u,o.k,o.r,"まだ出ていない",""]);return;}
-    K.push([u,o.k,o.r,KL[st.lv]||"",st.due?md(st.due)+(st.due<t?"（期限切れ）":""):""]);});
+    K.push([u,o.k,o.r,KL[st.lv]||"",st.due?md(st.due)+(st.due<t?"（期限切れ）":""):"",(st.h||[]).map(x=>md(x[0])+" "+(x[1]?"○":"×")+(x[2]==null?"":" "+secTxt(x[2]))).join(" / ")]);});
   const R=[["単元","ワークのページ","設問","やった日","結果","書いた答え"]];
   allRev().forEach(r=>{const st=S.rev[r.id];R.push([r.u,r.p,r.q,st?md(st.date):"",st?st.res:"まだ",st?st.ans:""]);});
   const B=[["番号","文","結果","正しい区切り"]];
@@ -788,6 +791,8 @@ function syncRows(){
 function syncScore(){let n=0;Object.values(S.tsu).forEach(t=>n+=(t.hist||[]).length);
   Object.values(S.kanji).forEach(k=>n+=1+Math.max(0,k.lv||0));return n+Object.keys(S.rev).length+Object.keys(S.bun).length;}
 function syncDevice(){try{let d=localStorage.getItem("kokugo-device");if(!d){d=(/iPhone|Android/.test(navigator.userAgent)?"スマホ-":"パソコン-")+Math.random().toString(36).slice(2,6);localStorage.setItem("kokugo-device",d);}return d;}catch(e){return "不明";}}
+function secTxt(n){return n<60?n+"秒":Math.floor(n/60)+"分"+(n%60)+"秒";}
+function tsuMeta(h){const a=[];if(h.sec!=null)a.push(secTxt(h.sec));if(h.tries!=null)a.push("並べ直し"+h.tries+"回");return a.length?"（"+a.join("・")+"）":"";}
 let syncTimer=null;
 function syncNow(){
   if(trialOn())return;
