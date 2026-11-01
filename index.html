@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#4E8A69">
-<meta name="apple-mobile-web-app-title" content="国語">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>国語学習サポート</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#4E8A69">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="国語">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
 <link rel="apple-touch-icon" href="icon.png">
 
@@ -160,6 +160,9 @@ ol.flow li{margin-bottom:10px}
 .lvdots i.on{background:var(--grid)}
 .checkline{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:15px}
 .checkline input{width:20px;height:20px;flex:none;margin-top:3px}
+.trialbtn{display:block;width:100%;margin:22px 0 8px;padding:10px 12px;border:1px dashed var(--pencil);border-radius:10px;background:none;color:var(--pencil);font-size:13px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.trialbtn.on{border:2px solid var(--red);background:var(--red-soft);color:var(--red);font-weight:700}
+.trialtag{margin-left:auto;margin-right:10px;white-space:nowrap;flex-shrink:0;padding:2px 8px;border-radius:999px;background:var(--red);color:#fff;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
@@ -371,7 +374,7 @@ const TSUMUGU=[];for(let i=0;i<Math.max(OTOUTO.length,TSUMUGU_H.length);i++){if(
 <script>
 const KEY="kokugo-lab-v1";
 function load(){try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):{};}catch(e){return {};}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function save(){if(trialOn())return;try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 let S=Object.assign({kanji:{},extraKanji:[],units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:[],bun:{},days:[]},load());
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -395,7 +398,7 @@ function genko(text,max){
 }
 function count(t){return [...String(t).replace(/\n/g,"")].length;}
 function maru(el){const d=document.createElement("div");d.className="maru";d.innerHTML='<svg viewBox="0 0 200 200" width="180" height="180"><circle cx="100" cy="100" r="80" transform="rotate(-100 100 100)"/></svg>';el.appendChild(d);setTimeout(()=>d.remove(),1400);}
-function head(back){return `<header class="top">${back?'<button class="back" onclick="home()">← もどる</button>':'<h1 class="logo">国語学習サポート</h1>'}<span class="date">${new Date().toLocaleDateString("ja-JP",{month:"long",day:"numeric",weekday:"short"})}</span></header>`;}
+function head(back){return `<header class="top">${back?'<button class="back" onclick="home()">← もどる</button>':'<h1 class="logo">国語学習サポート</h1>'}${trialOn()?'<span class="trialtag">おためし</span>':''}<span class="date">${new Date().toLocaleDateString("ja-JP",{month:"long",day:"numeric",weekday:"short"})}</span></header>`;}
 
 /* ---------- HOME ---------- */
 function home(){
@@ -413,7 +416,9 @@ function home(){
     <button class="subbtn" onclick="bunsetsu()"><b>文節チェック</b><span>文を文節に区切る</span></button>
   </div>
   <p class="streak">${st?`毎日の2つを続けた日：${st}日`:"漢字と言葉を紡ぐの2つで、今日の分は完了"}</p><p style="font-size:13px;color:var(--pencil);margin:4px 0 0">言葉を紡ぐは、教科書とノートを手元に置いてやろう。</p>
-  <div class="foot"><button onclick="settings()">習った教材・問題の追加</button><button onclick="tsuList()">言葉を紡ぐの問い一覧</button></div>`;
+  <div class="foot"><button onclick="settings()">習った教材・問題の追加</button><button onclick="tsuList()">言葉を紡ぐの問い一覧</button></div>
+  <button id="trialBtn" class="trialbtn${trialOn()?" on":""}">${trialLabel()}</button>`;
+  bindTrial($("#trialBtn"));
   window.scrollTo(0,0);
 }
 
@@ -758,6 +763,59 @@ function addRev(){const u=$("#ru").value.trim(),p=$("#rp").value.trim(),q=$("#rq
   S.extraRev.push({id:"x"+Date.now(),u,p:p||"?",q,type:$("#rt").value,max:parseInt($("#rm").value)||0});save();["#rq","#rp"].forEach(s=>$(s).value="");$("#msg").textContent="見直し問題を追加した。";}
 
 home();
+
+
+/* ---------- 記録の送信（スプレッドシート） ---------- */
+const LOG_URL="https://script.google.com/macros/s/AKfycby7lhyy9WtCE4ZqU48sLYJ5OGirOocbhPnfH7L4TtfZszQ1Hcnem2svJ_70vkvsJDRx/exec";
+const LOG_KEY="Pphha1TEbK66QTPT";
+function syncRows(){
+  const t=today();const md=d=>d?(+d.slice(5,7))+"/"+(+d.slice(8)):"";
+  const W=[["単元","問い","今の段階","やった回数","結果の流れ","最後にやった日"]];
+  TSUMUGU.forEach(it=>{const st=S.tsu[it.id];const u=UNIT_NAMES[it.unit]||it.unit;
+    if(!st||!st.hist||!st.hist.length){W.push([u,it.title,"まだ",0,"",""]);return;}
+    W.push([u,it.title,st.done?"段階3まで完了":"段階"+st.lv,st.hist.length,st.hist.map(h=>md(h.d)+" 段階"+h.lv+" "+h.res).join(" → "),md(st.hist[st.hist.length-1].d)]);});
+  const KL={0:"まちがえた",1:"書けた（1回）",2:"書けた（2回）",3:"書けた（3回以上）"};
+  const K=[["単元","漢字","読み","今の状態","次に出る日"]];
+  allKanji().forEach(o=>{const st=S.kanji[o.id];const u=UNIT_NAMES[o.u]||o.u;
+    if(!st||st.lv<0){K.push([u,o.k,o.r,"まだ出ていない",""]);return;}
+    K.push([u,o.k,o.r,KL[st.lv]||"",st.due?md(st.due)+(st.due<t?"（期限切れ）":""):""]);});
+  const R=[["単元","ワークのページ","設問","やった日","結果","書いた答え"]];
+  allRev().forEach(r=>{const st=S.rev[r.id];R.push([r.u,r.p,r.q,st?md(st.date):"",st?st.res:"まだ",st?st.ans:""]);});
+  const B=[["番号","文","結果","正しい区切り"]];
+  BUNSETSU.forEach((b,i)=>B.push([i+1,b.s.replace(/\//g,""),(i in S.bun)?(S.bun[i]?"正解":"まちがい"):"まだ",b.s.replace(/\//g,"／")]));
+  return {"言葉を紡ぐ":W,"漢字":K,"ワークの見直し":R,"文節チェック":B};
+}
+function syncScore(){let n=0;Object.values(S.tsu).forEach(t=>n+=(t.hist||[]).length);
+  Object.values(S.kanji).forEach(k=>n+=1+Math.max(0,k.lv||0));return n+Object.keys(S.rev).length+Object.keys(S.bun).length;}
+function syncDevice(){try{let d=localStorage.getItem("kokugo-device");if(!d){d=(/iPhone|Android/.test(navigator.userAgent)?"スマホ-":"パソコン-")+Math.random().toString(36).slice(2,6);localStorage.setItem("kokugo-device",d);}return d;}catch(e){return "不明";}}
+let syncTimer=null;
+function syncNow(){
+  if(trialOn())return;
+  if(!/^https:\/\/script\.google\.com\//.test(LOG_URL))return;
+  try{fetch(LOG_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({key:LOG_KEY,app:"kokugo",at:new Date().toISOString(),device:syncDevice(),score:syncScore(),sheets:syncRows(),raw:JSON.stringify(S)})}).catch(()=>{});}catch(e){}
+}
+function syncSoon(){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,3000);}
+(function(){const _save=save;save=function(){_save();syncSoon();};})();
+window.addEventListener("load",()=>setTimeout(syncNow,1500));
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&syncTimer){clearTimeout(syncTimer);syncTimer=null;syncNow();}});
+
+/* ---------- 保護者おためしモード（記録を残さない・60分で自動オフ） ---------- */
+var TRIAL_KEY="kokugo-trial-until",TRIAL_MIN=60;
+function trialUntil(){try{return +localStorage.getItem(TRIAL_KEY)||0;}catch(e){return 0;}}
+function trialOn(){return Date.now()<trialUntil();}
+function trialLabel(){if(!trialOn())return "保護者おためしモード：オフ（2秒長押しでオン）";
+  return `保護者おためしモード：オン（あと${Math.ceil((trialUntil()-Date.now())/60000)}分で自動オフ・2秒長押しでオフ）`;}
+function trialReload(){S=Object.assign({kanji:{},extraKanji:[],units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:[],bun:{},days:[]},load());}
+function trialSet(on){try{if(on)localStorage.setItem(TRIAL_KEY,String(Date.now()+TRIAL_MIN*60000));else localStorage.removeItem(TRIAL_KEY);}catch(e){}
+  trialWas=!!on;trialReload();home();}
+function bindTrial(btn){if(!btn)return;let t=null;
+  const down=e=>{e.preventDefault();btn.textContent="そのまま押し続けて…";t=setTimeout(()=>{t=null;trialSet(!trialOn());},2000);};
+  const up=()=>{if(t){clearTimeout(t);t=null;btn.textContent=trialLabel();}};
+  btn.addEventListener("pointerdown",down);["pointerup","pointerleave","pointercancel"].forEach(ev=>btn.addEventListener(ev,up));
+  btn.addEventListener("contextmenu",e=>e.preventDefault());}
+let trialWas=trialOn();
+setInterval(()=>{const now=trialOn();if(trialWas&&!now){trialReload();home();}trialWas=now;const b=$("#trialBtn");if(b&&!b.textContent.startsWith("そのまま"))b.textContent=trialLabel();},30000);
 </script>
 </body>
 </html>
