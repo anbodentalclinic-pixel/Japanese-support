@@ -92,6 +92,20 @@ p{margin:0 0 12px}
 .choice{border:1.5px solid var(--grid-soft);background:var(--sheet);border-radius:6px;padding:14px;font-size:17px;font-weight:700}
 .choice.ok{border-color:var(--ok);color:var(--ok)}
 .choice.ng{border-color:var(--red);color:var(--red)}
+.flow{display:flex;flex-direction:column;align-items:stretch}
+.fbox{display:block;width:100%;text-align:left;background:var(--sheet);border:1.5px solid var(--grid-soft);border-radius:6px;padding:10px 12px;opacity:0;animation:fin .45s ease-out forwards}
+button.fbox{cursor:pointer}button.fbox:hover{border-color:var(--grid)}
+.fbox b{display:inline-block;min-width:52px;color:var(--grid);font-size:14px;margin-right:6px}
+.fbox span{font-family:var(--kyo);font-size:16px}
+.fbox small{display:block;color:var(--pencil);font-size:12px;margin-top:2px}
+.fbox.on{border:2.5px solid var(--ok);background:var(--grid-soft)}
+.fbox.still{animation:none;opacity:1}
+.farrow{text-align:center;color:var(--grid);font-size:16px;line-height:1.4}
+@keyframes fin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.flyR{display:inline-block;animation:flyR .5s ease-in-out}.flyL{display:inline-block;animation:flyL .5s ease-in-out}
+@keyframes flyR{50%{transform:translate(30px,-14px)}}@keyframes flyL{50%{transform:translate(-30px,14px)}}
+.swapin{animation:fin .5s ease-out .35s both}
+@media (prefers-reduced-motion:reduce){.fbox,.swapin{animation:none;opacity:1}.flyR,.flyL{animation:none}}
 .note{background:var(--grid-soft);border-radius:6px;padding:12px 14px;font-size:15px;margin-top:14px}
 .note.red{background:var(--red-soft)}
 .frame{font-family:var(--kyo);font-size:17px;padding:10px 12px;border:1.5px dashed var(--grid);border-radius:6px;margin:0 0 12px}
@@ -641,7 +655,7 @@ const QUIZ = [
 const KEY="kokugo-lab-v1";
 function load(){try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):{};}catch(e){return {};}}
 function save(){if(trialOn())return;try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
-let S=Object.assign({kanji:{},extraKanji:[],units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:[],bun:{},gram:{},plan:{},quiz:{},days:[]},load());
+let S=Object.assign({kanji:{},extraKanji:[],units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:[],bun:{},gram:{},plan:{},quiz:{},focus:{},days:[]},load());
 const $=s=>document.querySelector(s);
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
@@ -672,6 +686,11 @@ function home(){
   const st=streak();
   $("#app").innerHTML=head(false)+`
   <button class="item" style="margin:0 0 16px;justify-content:space-between" onclick="rangeView()"><span><b>期末テストまで${daysLeft()>0?"あと"+daysLeft()+"日":daysLeft()===0?"今日":"終了"}</b><small style="display:block;color:var(--pencil)">テスト範囲を見わたす・自分の計画</small></span><span style="font-size:20px">→</span></button>
+  ${daysLeft()>=0?`<h3 style="color:var(--red);margin-top:0">期末前の集中</h3>
+  <div class="menu" style="margin-bottom:18px">
+    <button class="task" onclick="sjStart()"><span class="num">論</span><span><span class="t">シジュウカラ　論の流れで書く</span><span class="s">${(()=>{const f=focusStat("sj-");return f.done?f.ok+"/"+f.done+"問 正解　ワークP76〜79の記述へ":"仮説→検証1→疑問→検証2→結論で、ワークの記述を解く";})()}</span></span></button>
+    <button class="task" onclick="hbStart()"><span class="num">文</span><span><span class="t">並立・補助　見分けラボ</span><span class="s">${(()=>{const f=focusStat("hb-");return f.done?"見分けドリル "+f.ok+"/"+f.done+"問 正解":"入れかえテストと、もとの意味テストで見分ける";})()}</span></span></button>
+  </div>`:""}
   <h2>今日のメニュー</h2>
   <div class="menu">
     <button class="task${S.daily.kanjiDone?" done":""}" onclick="startKanji(false)"><span class="num">${S.daily.kanjiDone?"○":"一"}</span><span><span class="t">漢字 5問</span><span class="s">${S.daily.kanjiDone?"今日の分はできた。もう5問やってもいい":"紙に書いて、自分で丸つけ"}</span></span></button>
@@ -1025,7 +1044,7 @@ function settings(){
   <label class="f">字数（なければ0）</label><input id="rm" type="number" min="0" value="30">
   <div class="row"><button class="btn" onclick="addRev()">見直し問題を追加</button></div>
   <p id="msg" style="color:var(--ok);margin-top:10px"></p>
-  <div class="foot"><button onclick="if(confirm('記録をすべて消しますか？')){S={kanji:{},extraKanji:S.extraKanji,units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:S.extraRev,bun:{},gram:{},plan:{},quiz:{},days:[]};save();home();}">記録をリセット（追加した問題は残る）</button></div>`;
+  <div class="foot"><button onclick="if(confirm('記録をすべて消しますか？')){S={kanji:{},extraKanji:S.extraKanji,units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:S.extraRev,bun:{},gram:{},plan:{},quiz:{},focus:{},days:[]};save();home();}">記録をリセット（追加した問題は残る）</button></div>`;
 }
 function addKanji(){const u=$("#au").value.trim(),k=$("#ak").value.trim(),r=$("#ar").value.trim();let h=$("#ah").value.trim();
   if(!u||!k||!r){$("#msg").textContent="教材名・漢字・読みを入れてください。";return;}
@@ -1119,6 +1138,157 @@ function gramNext(){const it=GRAM[G.ti].items[G.ii];
   if(it.steps&&G.si<it.steps.length-1){G.si++;G.marks=[];G.checked=false;gramRender();return;}
   G.ii++;G.si=0;G.marks=[];G.checked=false;G.pick=null;G.first=true;gramRender();window.scrollTo(0,0);}
 function gramAnswer(it){const toks=it.s.split("/");if(it.steps)return it.steps.map(st=>st.p.replace(/をタップ.*$|になる文節を全部タップ|を全部タップ/,"")+"："+st.a.map(i=>toks[i]).join("").replace(/[。、]$/,"")).join("／");return it.opts[it.a];}
+
+
+
+/* ---------- 期末前の集中（シジュウカラ 論の流れで書く／並立・補助 見分けラボ） ---------- */
+function focusSave(id,ok){S.focus=S.focus||{};const p=S.focus[id];S.focus[id]={ok,d:today(),n:(p?p.n:0)+1};save();}
+function focusStat(pre){S.focus=S.focus||{};const k=Object.keys(S.focus).filter(x=>x.indexOf(pre)===0);return {done:k.length,ok:k.filter(x=>S.focus[x].ok).length};}
+
+const SJBOX=[
+ {k:"kasetsu",l:"仮説",t:"「ジャージャー」は「ヘビ」を意味する「単語」ではないか",p:"段落⑤"},
+ {k:"ken1",l:"検証1",t:"聞かせると、地面を見下ろしたり、巣箱をのぞいたりした",p:"段落⑥〜⑨"},
+ {k:"gimon",l:"疑問",t:"でも、「確認しろ」という命令かもしれない",p:"段落⑩"},
+ {k:"ken2",l:"検証2",t:"聞かせると、ヘビのように動く小枝に近づいた（ヘビと見間違えた）",p:"段落⑪〜⑭"},
+ {k:"ketsu",l:"結論",t:"「ジャージャー」は「ヘビ」を意味する「単語」である",p:"段落⑮"}];
+const SJQ=[
+ {id:"r6",q:"「ジャージャー」を聞いたときのしぐさは、ヘビの行動に合わせた警戒のしぐさ（ワークP76）",a:"ken1",why:"地面や巣箱を確かめるしぐさは、一回目の検証の結果。"},
+ {id:"r7",q:"二つ目の実験結果を、筆者はどのように解釈したか（ワークP77）",a:"ken2",why:"「二つ目の実験」＝検証2。"},
+ {id:"r8",q:"「ヘビの姿をイメージし」たといえる根拠（ワークP77）",a:"ken2",why:"イメージした証拠は、小枝をヘビと見間違えたこと＝検証2。"},
+ {id:"r9",q:"「ヘビを探す際に役立つ特別な行動を取る」といえる根拠（ワークP77）",a:"ken1",why:"地面を見下ろす・巣箱をのぞく＝検証1。"},
+ {id:"r10",q:"「……結論づけられます」とは、筆者の仮説はどうだったということか（ワークP78）",a:"ketsu",why:"結論＝仮説が確かめられた、ということ。"},
+ {id:"r11",q:"この文章の展開に説得力があるといえるのはなぜか（ワークP79）",a:"all",why:"検証1で残った疑問を、検証2で確かめた。流れ全体の話。"}];
+const SJGB=[
+ {id:"r8",q:"「ヘビの姿をイメージし」たといえる根拠は何か。「『ジャージャー』という鳴き声を聞くと、」に続けて書く。",
+  good:"「ジャージャー」という鳴き声を聞くと、ヘビのように幹をはい上がる小枝に近づいて確認したこと。",
+  bad:"「ジャージャー」という鳴き声を聞くと、地面を見下ろしたり巣箱をのぞいたりしたこと。",
+  why:"わるい答えは検証1の結果。「イメージした」の根拠は検証2の小枝。イメージ→小枝、探す→地面・巣箱、とセットで覚えよう。"},
+ {id:"r9",q:"「ヘビを探す際に役立つ特別な行動を取る」といえる根拠は何か。「『ジャージャー』という鳴き声を聞くと、」に続けて書く。",
+  good:"「ジャージャー」という鳴き声を聞くと、地面を見下ろしたり、巣箱の穴をのぞいたりしたこと。",
+  bad:"「ジャージャー」という鳴き声を聞くと、地面を見た。",
+  why:"わるい答えは、巣箱が抜けていて、文末も「こと。」になっていない。途中で止めずに最後まで書き切る。"},
+ {id:"r10",q:"「……結論づけられます」とは、筆者の仮説はどうだったということか。「証明」を使って書く。",
+  good:"「ジャージャー」は「ヘビ」を意味する「単語」だという仮説が、正しいと証明されたということ。",
+  bad:"「ジャージャー」は「ヘビ」という意味だということ。",
+  why:"問いは「仮説はどうだったか」。わるい答えには「仮説」も「証明」も入っていない。問いの言葉を答えに入れる。"},
+ {id:"r11",q:"この文章の展開に説得力があるといえるのはなぜか。「一回目の検証で…二回目の検証で…」の形で書く。",
+  good:"一回目の検証で「命令かもしれない」という疑問が残ったが、二回目の検証でそれを確かめ、仮説を証明したから。",
+  bad:"一回目の検証で地面や巣箱を確認し、二回目の検証で小枝に近づいたから。",
+  why:"わるい答えは、結果を二つ並べただけ。二回目の検証が一回目の疑問を解決した、という「つながり」が説得力のひみつ。"}];
+const SJHINT=[
+ {id:"r6",t:"検証1の段落（⑦〜⑨）で、ヘビがどうやって巣に近づいてくるかを書いた部分を探す。手がかりの言葉は「地面」「巣箱」。"},
+ {id:"r7",t:"検証2の段落（⑫〜⑭）で、文末が「〜と解釈できます」の文を探す。そこが筆者の解釈。"}];
+let SJ=null;
+function sjStart(){SJ={stage:"flow",qi:0,pick:null,gi:0,gpick:null,order:SJGB.map(()=>Math.random()<.5)};sjRender();}
+function sjFlow(hiKey,clickable,anim){
+  return `<div class="flow">${SJBOX.map((b,i)=>{let c="fbox"+(anim?"":" still");if(hiKey===b.k||(hiKey==="all"&&["ken1","gimon","ken2"].includes(b.k)))c+=" on";
+    const tag=clickable?"button":"div";return `${i?'<div class="farrow" aria-hidden="true">↓</div>':""}<${tag} class="${c}" style="animation-delay:${i*0.25}s"${clickable?` onclick="sjPick('${b.k}')"`:""}><b>${b.l}</b><span>${esc(b.t)}</span><small>${b.p}</small></${tag}>`;}).join("")}</div>`;
+}
+function sjRender(){
+  let h=head(true);
+  if(SJ.stage==="flow"){
+    h+=`<h2>シジュウカラ　論の流れで書く</h2><p style="font-size:15px">ワークP76〜79の記述は、ぜんぶ<b>この一本の流れ</b>のどこかを聞いている。まず流れを上から読もう。</p>
+    <div class="card">${sjFlow(null,false,true)}<div class="note">ポイントは<b>疑問</b>。一回目の検証だけでは「命令かもしれない」という疑問が残った。だから二回目の検証をした。</div>
+    <div class="row"><button class="btn" onclick="SJ.stage='map';sjRender()">次へ：この問いは流れのどこ？</button></div></div>`;
+  }else if(SJ.stage==="map"){
+    const it=SJQ[SJ.qi];const done=SJ.pick!==null;const ok=done&&SJ.pick===it.a;
+    h+=`<h2>この問いは流れのどこ？</h2><p style="font-size:15px">問いを読んで、答えがある箱をタップ。（${SJ.qi+1}/${SJQ.length}）</p><div class="card" id="sjc"><p class="q">${esc(it.q)}</p>
+    ${done?sjFlow(it.a,false):sjFlow(null,true)}
+    ${done?"":`<button class="opt" style="margin-top:10px" onclick="sjPick('all')">流れ全体（検証1 → 疑問 → 検証2）</button>`}`;
+    if(done)h+=`<div class="note${ok?"":" red"}">${ok?"正解。":"答えは色のついた箱。"}${esc(it.why)}</div><div class="row"><button class="btn" onclick="sjMapNext()">次へ</button></div>`;
+    h+=`</div>`;
+  }else if(SJ.stage==="gb"){
+    const it=SJGB[SJ.gi];const goodFirst=SJ.order[SJ.gi];const opts=goodFirst?[["good",it.good],["bad",it.bad]]:[["bad",it.bad],["good",it.good]];
+    h+=`<h2>いい答え・わるい答え</h2><p style="font-size:15px">どちらがいい答え？　タップしよう。（${SJ.gi+1}/${SJGB.length}）</p><div class="card" id="sjc"><p class="q">${esc(it.q)}</p>
+    ${opts.map(([k,t])=>{let c="evc";if(SJ.gpick){c+=k==="good"?" good":(SJ.gpick==="bad"?" bad":"");}return `<button class="${c}" onclick="sjGb('${k}')">${SJ.gpick?`<b style="font-family:var(--ui);font-size:13px">${k==="good"?"いい答え":"わるい答え"}</b><br>`:""}${esc(t)}</button>`;}).join("")}`;
+    if(SJ.gpick)h+=`<div class="note${SJ.gpick==="good"?"":" red"}">${SJ.gpick==="good"?"正解。":"いい答えは緑のほう。"}${esc(it.why)}</div><div class="row"><button class="btn" onclick="sjGbNext()">次へ</button></div>`;
+    h+=`</div>`;
+  }else if(SJ.stage==="hint"){
+    h+=`<h2>抜き出しの問いは、探す場所を決める</h2><div class="card">${SJHINT.map(x=>{const r=allRev().find(y=>y.id===x.id);return `<p class="q" style="font-size:16px">${esc(r?r.q:x.id)}</p><p style="margin:0 0 18px">${esc(x.t)}</p>`;}).join("")}
+    <div class="row"><button class="btn" onclick="SJ.stage='paper';sjRender()">次へ：ワークに書く</button></div></div>`;
+  }else{
+    h+=`<h2>ワークに書こう</h2><p style="font-size:15px">流れを見ながら、紙のワークP76〜79に書く。書いたら下のボタンで答えを入れて、自分で丸つけ。</p>
+    <div class="card" style="margin-bottom:12px">${sjFlow(null,false)}</div>
+    <div class="list">${SJQ.map(q=>{const r=allRev().find(y=>y.id===q.id);const st=S.rev[q.id];return r?`<button class="item" onclick="revStart('${q.id}')"><span class="mk${st?"":" none"}">${st?esc(st.res):"・"}</span><span>P${esc(r.p)}　${esc(r.q)}</span></button>`:"";}).join("")}</div>
+    <div class="row"><button class="btn line" onclick="home()">ホームへ</button></div>`;
+  }
+  $("#app").innerHTML=h;
+}
+function sjPick(k){if(SJ.pick!==null)return;const it=SJQ[SJ.qi];SJ.pick=k;focusSave("sj-map-"+it.id,k===it.a);sjRender();if(k===it.a)maru($("#sjc"));}
+function sjMapNext(){SJ.pick=null;if(SJ.qi<SJQ.length-1)SJ.qi++;else SJ.stage="gb";sjRender();window.scrollTo(0,0);}
+function sjGb(k){if(SJ.gpick)return;const it=SJGB[SJ.gi];SJ.gpick=k;focusSave("sj-gb-"+it.id,k==="good");sjRender();if(k==="good")maru($("#sjc"));}
+function sjGbNext(){SJ.gpick=null;if(SJ.gi<SJGB.length-1)SJ.gi++;else SJ.stage="hint";sjRender();window.scrollTo(0,0);}
+
+/* 並立・補助 見分けラボ */
+const HBSWAP=[
+ {pre:"この部屋は",a:"広くて",b:"明るい。",post:"",sa:"明るくて",sb:"広い。",same:true,why:"「明るくて広い」でも同じ部屋のこと。入れかえても意味が同じ＝並立の関係。"},
+ {pre:"",a:"りんごと",b:"みかんを",post:"買う。",sa:"みかんと",sb:"りんごを",same:true,why:"買う物は同じ。入れかえOK＝並立の関係。"},
+ {pre:"ノートに名前を",a:"書いて",b:"みる。",post:"",sa:"見て",sb:"書く。",same:false,why:"「見て書く」は、お手本を見て書くという別の意味になる。入れかえられない＝並立ではない。"},
+ {pre:"弟が本を",a:"読んで",b:"いる。",post:"",sa:"いて",sb:"読む。",same:false,why:"「いて読む」は文として変。入れかえられない＝並立ではない。"}];
+const HBMEAN=[
+ {s:"弟が本を読んで",v:"いる",post:"。",o:["その場所に「居る」","読むのが続いている"],a:1,hojo:true},
+ {s:"窓を開けて",v:"おく",post:"。",o:["物をどこかに「置く」","前もってしておく"],a:1,hojo:true},
+ {s:"名前を書いて",v:"みる",post:"。",o:["目で「見る」","ためしにやる"],a:1,hojo:true},
+ {s:"家まで走って",v:"帰る",post:"。",o:["家にもどる（もとの意味のまま）","意味がうすれて、何かをそえている"],a:0,hojo:false}];
+const HBDRILL=[
+ {id:"h1",s:"白くて/大きい/犬が/いる。",hi:[0,1],a:0,tip:"「大きくて白い」と入れかえても同じ＝並立。"},
+ {id:"h2",s:"雨が/降って/きた。",hi:[1,2],a:1,tip:"「きた」はどこかから来たのではなく、「だんだん〜になった」という意味をそえている。"},
+ {id:"h3",s:"机の/上に/本を/置く。",hi:[2,3],a:2,tip:"「〜て」の形ではなく、本当に置いている。並立でも補助でもない。"},
+ {id:"h4",s:"本を/机に/置いて/おく。",hi:[2,3],a:1,tip:"後ろの「おく」は、前もってしておく意味。もとの「置く」の意味がうすれている。"},
+ {id:"h5",s:"父と/母が/来る。",hi:[0,1],a:0,tip:"「母と父が」でも同じ＝並立。"},
+ {id:"h6",s:"妹に/本を/読んで/あげる。",hi:[2,3],a:1,tip:"物をあげるのではなく、「〜してあげる」という意味をそえている。"},
+ {id:"h7",s:"友達に/プレゼントを/あげる。",hi:[1,2],a:2,tip:"本当に物をあげている。「〜て」の形でもない。"},
+ {id:"h8",s:"静かで/きれいな/町だ。",hi:[0,1],a:0,tip:"「きれいで静かな町」でも同じ＝並立。"},
+ {id:"h9",s:"家まで/走って/帰る。",hi:[1,2],a:2,tip:"「帰る」は家にもどるという、もとの意味のまま。入れかえ（帰って走る）もできない。"},
+ {id:"h10",s:"テレビを/見て/いる。",hi:[1,2],a:1,tip:"「いる」は居る場所ではなく、見るのが続いている意味。"},
+ {id:"h11",s:"先生が/教室に/いる。",hi:[1,2],a:2,tip:"本当にその場所に居る。「〜て」の形でもない。"},
+ {id:"h12",s:"赤や/青の/花が/さく。",hi:[0,1],a:0,tip:"「青や赤の花」でも同じ＝並立。"},
+ {id:"h13",s:"宿題を/やって/しまう。",hi:[1,2],a:1,tip:"「しまう」は物をしまうのではなく、「全部〜する」という意味をそえている。"},
+ {id:"h14",s:"もう一度/よく/見て/みる。",hi:[2,3],a:1,tip:"前の「見て」は本当に見る。後ろの「みる」は、ためしにやる意味＝補助。"}];
+const HBOPT=["並立の関係","補助の関係","どちらでもない"];
+const HBRULE=`<div class="frame" style="line-height:1.9;font-size:16px">見分け方<br>① 入れかえても意味が同じ　→　<b>並立</b><br>② 「〜て（で）」のあとで、もとの意味がうすい　→　<b>補助</b><br>③ どちらでもない　→　<b>どちらでもない</b></div>`;
+let HB=null;
+function hbStart(){HB={stage:"swap",i:0,swapped:false,pick:null,list:shuffle(HBDRILL),ok:0};hbRender();}
+function hbRender(){
+  let h=head(true);
+  if(HB.stage==="swap"){
+    const it=HBSWAP[HB.i];
+    h+=`<h2>並立・補助　見分けラボ</h2><p style="font-size:15px"><b>実験1：入れかえテスト</b>　色のついた二つの文節を入れかえてみよう。（${HB.i+1}/${HBSWAP.length}）</p><div class="card" id="hbc">
+    <div class="gsent">${it.pre?`<span class="gchip static">${esc(it.pre)}</span>`:""}<span class="gchip static hi${HB.swapped&&HB.pick===null?" flyR":""}">${esc(it.a)}</span><span class="gchip static hi${HB.swapped&&HB.pick===null?" flyL":""}">${esc(it.b)}</span>${it.post?`<span class="gchip static">${esc(it.post)}</span>`:""}</div>`;
+    if(!HB.swapped)h+=`<div class="row"><button class="btn" onclick="HB.swapped=true;hbRender()">入れかえる</button></div>`;
+    else{h+=`<div class="gsent${HB.pick===null?" swapin":""}">${it.pre?`<span class="gchip static">${esc(it.pre)}</span>`:""}<span class="gchip static sel">${esc(it.sa)}</span><span class="gchip static sel">${esc(it.sb)}</span>${it.post?`<span class="gchip static">${esc(it.post)}</span>`:""}</div><p class="q" style="margin-top:14px">意味は同じ？</p>
+      ${["同じ","変わる（変な文になる）"].map((o,k)=>{let c="opt";if(HB.pick!==null){const ans=it.same?0:1;if(k===ans)c+=" ok";else if(k===HB.pick)c+=" ng";}return `<button class="${c}" onclick="hbSwapPick(${k})">${o}</button>`;}).join("")}`;
+      if(HB.pick!==null)h+=`<div class="note${HB.pick===(it.same?0:1)?"":" red"}">${esc(it.why)}</div><div class="row"><button class="btn" onclick="hbSwapNext()">次へ</button></div>`;}
+    h+=`</div>`;
+  }else if(HB.stage==="mean"){
+    const it=HBMEAN[HB.i];
+    h+=`<h2>並立・補助　見分けラボ</h2><p style="font-size:15px"><b>実験2：もとの意味テスト</b>　「〜て」のあとの言葉は、もとの意味のまま？（${HB.i+1}/${HBMEAN.length}）</p><div class="card" id="hbc">
+    <p class="q" style="font-size:20px">${esc(it.s)}<span style="color:var(--red);border-bottom:3px solid var(--red)">${esc(it.v)}</span>${esc(it.post)}</p><p style="margin:0 0 10px">この「${esc(it.v)}」の意味は？</p>
+    ${it.o.map((o,k)=>{let c="opt";if(HB.pick!==null){if(k===it.a)c+=" ok";else if(k===HB.pick)c+=" ng";}return `<button class="${c}" onclick="hbMeanPick(${k})">${esc(o)}</button>`;}).join("")}`;
+    if(HB.pick!==null)h+=`<div class="note${HB.pick===it.a?"":" red"}">${it.hojo?`もとの意味がうすれて、前の文節に意味をそえている。だから<b>補助の関係</b>。`:`もとの意味のまま。だから<b>補助ではない</b>。「〜て」の形だけで決めない。`}</div><div class="row"><button class="btn" onclick="hbMeanNext()">次へ</button></div>`;
+    h+=`</div>`;
+  }else if(HB.stage==="rule"){
+    h+=`<h2>見分け方のまとめ</h2><div class="card">${HBRULE}<div class="note">いい例：「広くて明るい」＝入れかえOK → 並立。「書いてみる」＝ためしに書く → 補助。<br>わるい例：「目を見る」を補助と答える。「〜て」がなく、本当に目で見ているので補助ではない。</div>
+    <div class="row"><button class="btn" onclick="HB.stage='drill';HB.i=0;HB.pick=null;hbRender()">見分けドリルへ（${HBDRILL.length}問）</button></div></div>`;
+  }else if(HB.stage==="drill"){
+    if(HB.i>=HB.list.length){h+=`<div class="card" style="text-align:center"><div class="big">${HB.ok} / ${HB.list.length}</div><p>正解した数。</p><div class="note" style="text-align:left">紙でも確かめよう：ワークP85〜86の並立・補助の問題</div>
+      <div class="row"><button class="btn line" onclick="hbStart()">もう一回</button><button class="btn" onclick="home()">ホームへ</button></div></div>`;$("#app").innerHTML=h;return;}
+    const it=HB.list[HB.i];const toks=it.s.split("/");
+    h+=`<h2>見分けドリル</h2><p style="font-size:15px">赤い線の二つの文節の関係は？（${HB.i+1}/${HB.list.length}）</p><div class="card" id="hbc">
+    <div class="gsent">${toks.map((w,i)=>`<span class="gchip static${it.hi.includes(i)?" hi":""}">${esc(w)}</span>`).join("")}</div><div style="height:10px"></div>
+    ${HBOPT.map((o,k)=>{let c="opt";if(HB.pick!==null){if(k===it.a)c+=" ok";else if(k===HB.pick)c+=" ng";}return `<button class="${c}" onclick="hbDrillPick(${k})">${o}</button>`;}).join("")}`;
+    if(HB.pick!==null)h+=`<div class="note${HB.pick===it.a?"":" red"}">${HB.pick===it.a?"正解。":"答えは「"+HBOPT[it.a]+"」。"}${esc(it.tip)}</div>${HB.pick===it.a?"":HBRULE}<div class="row"><button class="btn" onclick="hbDrillNext()">次へ</button></div>`;
+    h+=`</div>`;
+  }
+  $("#app").innerHTML=h;
+}
+function hbSwapPick(k){if(HB.pick!==null)return;const it=HBSWAP[HB.i];HB.pick=k;const ok=k===(it.same?0:1);hbRender();if(ok)maru($("#hbc"));}
+function hbSwapNext(){HB.pick=null;HB.swapped=false;if(HB.i<HBSWAP.length-1)HB.i++;else{HB.stage="mean";HB.i=0;}hbRender();window.scrollTo(0,0);}
+function hbMeanPick(k){if(HB.pick!==null)return;HB.pick=k;hbRender();if(k===HBMEAN[HB.i].a)maru($("#hbc"));}
+function hbMeanNext(){HB.pick=null;if(HB.i<HBMEAN.length-1)HB.i++;else{HB.stage="rule";HB.i=0;}hbRender();window.scrollTo(0,0);}
+function hbDrillPick(k){if(HB.pick!==null)return;const it=HB.list[HB.i];HB.pick=k;const ok=k===it.a;if(ok)HB.ok++;focusSave("hb-"+it.id,ok);hbRender();if(ok)maru($("#hbc"));}
+function hbDrillNext(){HB.pick=null;HB.i++;hbRender();window.scrollTo(0,0);}
+function hbAnswer(id){const it=HBDRILL.find(x=>x.id===id);return it?HBOPT[it.a]:"";}
 
 
 /* ---------- テスト範囲を見わたす ---------- */
@@ -1224,10 +1394,14 @@ function syncRows(){
   BUNSETSU.forEach((b,i)=>B.push([i+1,b.s.replace(/\//g,""),(i in S.bun)?(S.bun[i]?"正解":"まちがい"):"まだ",b.s.replace(/\//g,"／")]));
   S.gram=S.gram||{};gramAll().forEach(it=>{const g=S.gram[it.id];B.push(["文法"+it.id,"【"+it.topic+"】"+it.s.replace(/\//g,""),g?(g.ok?"正解":"まちがい"):"まだ",gramAnswer(it)]);});
   S.quiz=S.quiz||{};quizAll().forEach(it=>{const g=S.quiz[it.id];B.push(["確認"+it.id,"【"+it.set+"】"+it.q,g?(g.ok?"正解":"まちがい"):"まだ",it.opts[it.a]]);});
+  S.focus=S.focus||{};const fr=(id,label,ans)=>{const g=S.focus[id];B.push(["集中"+id,label,g?(g.ok?"正解":"まちがい"):"まだ",ans]);};
+  SJQ.forEach(q=>fr("sj-map-"+q.id,"【シジュウカラ 流れのどこ】"+q.q,q.a==="all"?"流れ全体":SJBOX.find(b=>b.k===q.a).l));
+  SJGB.forEach(q=>fr("sj-gb-"+q.id,"【シジュウカラ いい答え】"+q.q,q.good));
+  HBDRILL.forEach(q=>fr("hb-"+q.id,"【並立・補助 見分け】"+q.s.replace(/\//g,""),HBOPT[q.a]));
   return {"言葉を紡ぐ":W,"漢字":K,"ワークの見直し":R,"文節チェック":B};
 }
 function syncScore(){let n=0;Object.values(S.tsu).forEach(t=>n+=(t.hist||[]).length);
-  Object.values(S.kanji).forEach(k=>n+=1+Math.max(0,k.lv||0));return n+Object.keys(S.rev).length+Object.keys(S.bun).length+Object.keys(S.gram||{}).length+Object.keys(S.quiz||{}).length+Object.keys(S.intro||{}).length;}
+  Object.values(S.kanji).forEach(k=>n+=1+Math.max(0,k.lv||0));return n+Object.keys(S.rev).length+Object.keys(S.bun).length+Object.keys(S.gram||{}).length+Object.keys(S.quiz||{}).length+Object.keys(S.focus||{}).length+Object.keys(S.intro||{}).length;}
 function syncDevice(){try{let d=localStorage.getItem("kokugo-device");if(!d){d=(/iPhone|Android/.test(navigator.userAgent)?"スマホ-":"パソコン-")+Math.random().toString(36).slice(2,6);localStorage.setItem("kokugo-device",d);}return d;}catch(e){return "不明";}}
 function secTxt(n){return n<60?n+"秒":Math.floor(n/60)+"分"+(n%60)+"秒";}
 function tsuMeta(h){const a=[];if(h.sec!=null)a.push(secTxt(h.sec));if(h.tries!=null)a.push("並べ直し"+h.tries+"回");return a.length?"（"+a.join("・")+"）":"";}
@@ -1249,7 +1423,7 @@ function trialUntil(){try{return +localStorage.getItem(TRIAL_KEY)||0;}catch(e){r
 function trialOn(){return Date.now()<trialUntil();}
 function trialLabel(){if(!trialOn())return "保護者おためしモード：オフ（2秒長押しでオン）";
   return `保護者おためしモード：オン（あと${Math.ceil((trialUntil()-Date.now())/60000)}分で自動オフ・2秒長押しでオフ）`;}
-function trialReload(){S=Object.assign({kanji:{},extraKanji:[],units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:[],bun:{},gram:{},plan:{},quiz:{},days:[]},load());}
+function trialReload(){S=Object.assign({kanji:{},extraKanji:[],units:{},daily:{},kij:{},tsu:{},rev:{},extraRev:[],bun:{},gram:{},plan:{},quiz:{},focus:{},days:[]},load());}
 function trialSet(on){try{if(on)localStorage.setItem(TRIAL_KEY,String(Date.now()+TRIAL_MIN*60000));else localStorage.removeItem(TRIAL_KEY);}catch(e){}
   trialWas=!!on;trialReload();home();}
 function bindTrial(btn){if(!btn)return;let t=null;
